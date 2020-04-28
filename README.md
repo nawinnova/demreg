@@ -1,4 +1,7 @@
 # demreg
+
+This branch is a work in progress for when things need tweaking or testing
+
 Calculate the Differential Emission Measure (DEM) from solar data using regularised inversion in SSWIDL.
 
 Note that this is a work in progress version of the previous code mapping DEM Reg code http://www.astro.gla.ac.uk/~iain/demreg/map/
