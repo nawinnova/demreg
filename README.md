@@ -1,6 +1,6 @@
 # demreg
 
-This branch is a work in progress for when things need tweaking or testing
+**This branch is a work in progress for when things need testing or rembering how they work**
 
 Calculate the Differential Emission Measure (DEM) from solar data using regularised inversion in SSWIDL.
 
