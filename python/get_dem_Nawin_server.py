@@ -49,7 +49,7 @@ def get_data(date, start_time, end_time, passband, data_disk):
  
 ## Function to get the list of AIA filenames
 def get_filelist(data_disk, passband):
-    files = glob.glob(data_disk+str(passband)+'/*.fits'')
+    files = glob.glob(data_disk+str(passband)+'/*.fits')
     files.sort()
     files_dt = [dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f') for file_i in files]
     return files, files_dt
@@ -426,22 +426,22 @@ if __name__ == "__main__":
         np.savez(output_dir+'Dens_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.npz',Densmap = Densmap)
                  
         # Get values from subregion
-        labelsaia_lead_outer[img] = pixeltransform_AIA(pixel_lead_outer[0], pixel_lead_outer[1], submapref.wcs,submap)
-        labelsaia_lead_inner[img] = pixeltransform_AIA(pixel_lead_inner[0], pixel_lead_inner[1], submapref.wcs,submap)
-        labelsaia_fol_outer[img] = pixeltransform_AIA(pixel_fol_outer[0], pixel_fol_outer[1], submapref.wcs,submap)
-        labelsaia_fol_inner[img] = pixeltransform_AIA(pixel_fol_inner[0], pixel_fol_inner[1], submapref.wcs,submap)
-        meanEM_lead_outer[img] = Selectprop_DEM(EM_total, labelsaia_lead_outer)
-        meanEM_lead_inner[img] = Selectprop_DEM(EM_total, labelsaia_lead_inner)
-        meanEM_fol_outer[img] = Selectprop_DEM(EM_total, labelsaia_fol_outer)
-        meanEM_fol_inner[img] = Selectprop_DEM(EM_total, labelsaia_fol_inner)
-        meanT_lead_outer[img] = Selectprop_DEM(Tempmap, labelsaia_lead_outer)
-        meanT_lead_inner[img] = Selectprop_DEM(Tempmap, labelsaia_lead_inner)
-        meanT_fol_outer[img] = Selectprop_DEM(Tempmap, labelsaia_fol_outer)
-        meanT_fol_inner[img] = Selectprop_DEM(Tempmap, labelsaia_fol_inner)
-        meanDens_lead_outer[img] = Selectprop_DEM(Densmap, labelsaia_lead_outer)
-        meanDens_lead_inner[img] = Selectprop_DEM(Densmap, labelsaia_lead_inner)
-        meanDens_fol_outer[img] = Selectprop_DEM(Densmap, labelsaia_fol_outer)
-        meanDens_fol_inner[img] = Selectprop_DEM(Densmap, labelsaia_fol_inner)
+        # labelsaia_lead_outer[img] = pixeltransform_AIA(pixel_lead_outer[0], pixel_lead_outer[1], submapref.wcs,submap)
+        # labelsaia_lead_inner[img] = pixeltransform_AIA(pixel_lead_inner[0], pixel_lead_inner[1], submapref.wcs,submap)
+        # labelsaia_fol_outer[img] = pixeltransform_AIA(pixel_fol_outer[0], pixel_fol_outer[1], submapref.wcs,submap)
+        # labelsaia_fol_inner[img] = pixeltransform_AIA(pixel_fol_inner[0], pixel_fol_inner[1], submapref.wcs,submap)
+        # meanEM_lead_outer[img] = Selectprop_DEM(EM_total, labelsaia_lead_outer)
+        # meanEM_lead_inner[img] = Selectprop_DEM(EM_total, labelsaia_lead_inner)
+        # meanEM_fol_outer[img] = Selectprop_DEM(EM_total, labelsaia_fol_outer)
+        # meanEM_fol_inner[img] = Selectprop_DEM(EM_total, labelsaia_fol_inner)
+        # meanT_lead_outer[img] = Selectprop_DEM(Tempmap, labelsaia_lead_outer)
+        # meanT_lead_inner[img] = Selectprop_DEM(Tempmap, labelsaia_lead_inner)
+        # meanT_fol_outer[img] = Selectprop_DEM(Tempmap, labelsaia_fol_outer)
+        # meanT_fol_inner[img] = Selectprop_DEM(Tempmap, labelsaia_fol_inner)
+        # meanDens_lead_outer[img] = Selectprop_DEM(Densmap, labelsaia_lead_outer)
+        # meanDens_lead_inner[img] = Selectprop_DEM(Densmap, labelsaia_lead_inner)
+        # meanDens_fol_outer[img] = Selectprop_DEM(Densmap, labelsaia_fol_outer)
+        # meanDens_fol_inner[img] = Selectprop_DEM(Densmap, labelsaia_fol_inner)
         
     outputplasmapropdf = pd.DataFrame({'Date': time_array[index],
                          'Mean EM (Leading Outer)': meanEM_lead_outer,
