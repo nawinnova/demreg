@@ -400,9 +400,9 @@ for img in range(start_img, len(flist[index])):
     if files == False:
         print('Calculating DEM')
         dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
-        # tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
-        # with asdf.AsdfFile(tree) as asdf_file:  
-        #     asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
+        tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
+        with asdf.AsdfFile(tree) as asdf_file:  
+            asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
     else:
         print('Loading previously calculated DEM')
         arrs = asdf.open(dem_arr_tit)  
@@ -435,6 +435,6 @@ for img in range(start_img, len(flist[index])):
     # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
     Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
     print('DEM plotted')
-
+    
 
 print('Job Done!')
