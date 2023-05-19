@@ -267,25 +267,25 @@ def plot_dens_images(submap, EM_total, img_dens_tit):
     return
 
 # transfer xpixel and ypixel to labels                      
-def pixeltransform_AIA(xpixelaia, ypixelaia, subaiamapwcs, subaiamap_new):
-    aia_subarea_sky = pixel_to_skycoord(xpixelaia,ypixelaia,subaiamapwcs,origin=0)
-    aianew_subarea_sky = solar_rotate_coordinate(aia_subarea_sky, observer=subaiamap_new.observer_coordinate)
-    aianew_subarea_pix= skycoord_to_pixel(aianew_subarea_sky, wcs=subaiamap_new.wcs,origin=0)
-    aianew_subarea_pix_x = (np.rint(aianew_subarea_pix[0])).astype(int)
-    aianew_subarea_pix_y = (np.rint(aianew_subarea_pix[1])).astype(int)
-    labelsmock_subarea_array = np.zeros(subaiamap_new.data.shape, dtype=int)
-    labelsmock_subarea_array[aianew_subarea_pix_y,aianew_subarea_pix_x] = 1
-    # #IMPORTANT!!!!!! DoubleBInaryCLosing
-    # #Rowwise
-    # for i in range (len(labelsmock_subarea_array)):
-    #     labelsmock_subarea_array[i] = ndimage.binary_closing(labelsmock_subarea_array[i]).astype(int)
-    # #Overall
-    labelsmock_subarea_array = ndimage.binary_closing(labelsmock_subarea_array).astype(int)
-    labelsmock_subarea, n2 = ndimage.label(labelsmock_subarea_array)
-    if n2 != 1: 
-        print("ERROR with binary closing with n ={} at {}".format(n2, subaiamap_new.date))
+# def pixeltransform_AIA(xpixelaia, ypixelaia, subaiamapwcs, subaiamap_new):
+#     aia_subarea_sky = pixel_to_skycoord(xpixelaia,ypixelaia,subaiamapwcs,origin=0)
+#     aianew_subarea_sky = solar_rotate_coordinate(aia_subarea_sky, observer=subaiamap_new.observer_coordinate)
+#     aianew_subarea_pix= skycoord_to_pixel(aianew_subarea_sky, wcs=subaiamap_new.wcs,origin=0)
+#     aianew_subarea_pix_x = (np.rint(aianew_subarea_pix[0])).astype(int)
+#     aianew_subarea_pix_y = (np.rint(aianew_subarea_pix[1])).astype(int)
+#     labelsmock_subarea_array = np.zeros(subaiamap_new.data.shape, dtype=int)
+#     labelsmock_subarea_array[aianew_subarea_pix_y,aianew_subarea_pix_x] = 1
+#     # #IMPORTANT!!!!!! DoubleBInaryCLosing
+#     # #Rowwise
+#     # for i in range (len(labelsmock_subarea_array)):
+#     #     labelsmock_subarea_array[i] = ndimage.binary_closing(labelsmock_subarea_array[i]).astype(int)
+#     # #Overall
+#     labelsmock_subarea_array = ndimage.binary_closing(labelsmock_subarea_array).astype(int)
+#     labelsmock_subarea, n2 = ndimage.label(labelsmock_subarea_array)
+#     if n2 != 1: 
+#         print("ERROR with binary closing with n ={} at {}".format(n2, subaiamap_new.date))
     
-    return labelsmock_subarea
+#     return labelsmock_subarea
 
 # Select properties from labels
 def Selectprop_DEM(proparray, labels):
@@ -443,20 +443,20 @@ if __name__ == "__main__":
         # meanDens_fol_outer[img] = Selectprop_DEM(Densmap, labelsaia_fol_outer)
         # meanDens_fol_inner[img] = Selectprop_DEM(Densmap, labelsaia_fol_inner)
         
-    outputplasmapropdf = pd.DataFrame({'Date': time_array[index],
-                         'Mean EM (Leading Outer)': meanEM_lead_outer,
-                         'Mean Temperature (Leading Outer)': meanT_lead_outer,
-                         'Mean Density (Leading Outer)': meanDens_lead_outer,
-                         'Mean EM (Leading Inner)': meanEM_lead_inner,
-                         'Mean Temperature (Leading Inner)': meanT_lead_inner,
-                         'Mean Density (Leading Inner)': meanDens_lead_inner,
-                         'Mean EM (Following Outer)': meanEM_fol_outer,
-                         'Mean Temperature (Following Outer)': meanT_fol_outer,
-                         'Mean Density (Following Outer)': meanDens_fol_outer,
-                         'Mean EM (Following Inner)': meanEM_fol_inner,
-                         'Mean Temperature (Following Inner)': meanT_fol_inner,
-                         'Mean Density (Following Inner)': meanDens_fol_inner})
+    # outputplasmapropdf = pd.DataFrame({'Date': time_array[index],
+    #                      'Mean EM (Leading Outer)': meanEM_lead_outer,
+    #                      'Mean Temperature (Leading Outer)': meanT_lead_outer,
+    #                      'Mean Density (Leading Outer)': meanDens_lead_outer,
+    #                      'Mean EM (Leading Inner)': meanEM_lead_inner,
+    #                      'Mean Temperature (Leading Inner)': meanT_lead_inner,
+    #                      'Mean Density (Leading Inner)': meanDens_lead_inner,
+    #                      'Mean EM (Following Outer)': meanEM_fol_outer,
+    #                      'Mean Temperature (Following Outer)': meanT_fol_outer,
+    #                      'Mean Density (Following Outer)': meanDens_fol_outer,
+    #                      'Mean EM (Following Inner)': meanEM_fol_inner,
+    #                      'Mean Temperature (Following Inner)': meanT_fol_inner,
+    #                      'Mean Density (Following Inner)': meanDens_fol_inner})
                                        
-    outputplasmapropdf.to_csv('/disk/solar/nn2/results/Subarea_landf_fixbound_20181031_0001_DEM.csv',index = False)
+    # outputplasmapropdf.to_csv('/disk/solar/nn2/results/Subarea_landf_fixbound_20181031_0001_DEM.csv',index = False)
 
     #pdb.set_trace()

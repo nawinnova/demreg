@@ -60,7 +60,8 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
             except:
                 files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))    
         except OSError as e:
-            print('{}'.format(e) + 'for file ' + file_i)
+            print('{}'.format(e) + ' for file ' + file_i)
+            files_dt.append(dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f'))
             continue
         
     left = bisect_left(files_dt, img_time_range[0])
