@@ -55,14 +55,14 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
     for file_i in files:
         try:
             hdr = fits.getheader(file_i, 1, ignore_missing_simple=True)
+            try:
+                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
+            except:
+                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))    
         except OSError as e:
-            print('{}'.format(e))
+            print('{}'.format(e) + 'for file ' + file_i)
             continue
-        try:
-            files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
-        except:
-            files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))
-
+        
     left = bisect_left(files_dt, img_time_range[0])
     right = bisect_right(files_dt, img_time_range[1])
     files_out = files[left:right]
@@ -91,7 +91,7 @@ def event_info(data_disk):
     if not files:
         get_data(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), ref_file_date, 10*u.second, 193, data_disk)
 
-    files, files_dt = get_filelist(data_disk, 193, ref_file_date, ref_time_range)
+    # files, files_dt = get_filelist(data_disk, 193, ref_file_date, ref_time_range)
 
     ind = np.abs([t - strt_time for t in files_dt])
     map = Map(files[ind.argmin()])
@@ -118,7 +118,7 @@ def get_data(start_time, end_time, img_file_date, cadence, pband, data_disk):
     attrs_time = a.Time(start_time, end_time)
     wvlnth = a.Wavelength(int(pband)*u.Angstrom, int(pband)*u.Angstrom)
     result = Fido.search(attrs_time, a.Instrument('AIA'), wvlnth, a.Sample(cadence))
-    files = Fido.fetch(result, path = data_disk+str(pband).rjust(4, "0")+'/'+img_file_date, overwrite=False, progress=True)
+    files = Fido.fetch(result, path = data_disk+str(pband)+'/'+img_file_date, overwrite=True, progress=True)
 
 ## Function to get AIA submap
 def get_submap(time_array,index,img,file,crd_cent,crd_width):
