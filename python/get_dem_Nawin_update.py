@@ -72,7 +72,7 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:10:00'
+    start_time = '2018/10/31 00:00:00'
     end_time = '2018/10/31 01:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
@@ -122,7 +122,7 @@ def get_data(start_time, end_time, img_file_date, cadence, pband, data_disk):
 
 ## Function to get AIA submap
 def get_submap(time_array,index,img,file,crd_cent,crd_width):
-    ind = closest(np.array(time_array[2][:]), time_array[index][img])
+    ind = closest(np.array(time_array[3][:]), time_array[index][img])
     map = Map(file[ind])
     with propagate_with_solar_surface():
         diffrot_cent = crd_cent.transform_to(map.coordinate_frame)
@@ -336,7 +336,7 @@ start_time,end_time,ref_time,cadence,crd_cent,crd_width,ref_file_date,img_file_d
 
 ## Define and create the output directories
 
-output_dir = '/disk/solar/nn2/results/DEM/'
+output_dir = '/disk/solar/nn2/results/DEM_update/'
 
 os.makedirs(output_dir, exist_ok='True')
 passband = [94, 131, 171, 193, 211, 335]
@@ -399,7 +399,11 @@ for img in range(start_img, len(flist[index])):
     files = os.path.exists(dem_arr_tit)
     if files == False:
         print('Calculating DEM')
-        dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
+        try:
+            dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
+        except OSError as e:
+            print('{}'.format(e))
+            continue
         # tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
         # with asdf.AsdfFile(tree) as asdf_file:  
         #     asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
@@ -414,7 +418,7 @@ for img in range(start_img, len(flist[index])):
         logtemps = arrs['logtemps']
     print('DEM calculation completed')
     # Get a submap to have the scales and image properties.
-    submap = get_submap(time_array,index,img,f_0171,crd_cent,crd_width)
+    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
     img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
     plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
     img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
@@ -435,6 +439,7 @@ for img in range(start_img, len(flist[index])):
     # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
     Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
     print('DEM plotted')
+    del dem, edem, mlogt, elogt, chisq, logtemps, EM_total
 
 
 print('Job Done!')
