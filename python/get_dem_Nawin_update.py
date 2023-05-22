@@ -453,6 +453,6 @@ for img in range(start_img, len(flist[index])):
     # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
     # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
     # print('DEM plotted')
-    del dem, edem, mlogt, elogt, chisq, logtemps
+    del dem, edem, mlogt, elogt, chisq, logtemps, dn_reg
     print('delete variables, moving to next time step')
 print('Job Done!')
