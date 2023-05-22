@@ -205,9 +205,9 @@ def calculate_dem(map_array, err_array):
     for i in range(0,nf):
         trmatrix[:,i]=trin['tr'][i]    
     
-    t_space=0.05
-    #logT = 5.3-6.5 (Heinemann2021)
-    t_min=5.3
+    t_space=0.1
+    #logT = 5.3-6.5 (Heinemann2021) #lower lim 5.5
+    t_min=5.5
     t_max=6.5
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
@@ -415,9 +415,12 @@ for img in range(start_img, len(flist[index])):
         except OSError as e:
             print('{}'.format(e))
             continue
-        # tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
-        # with asdf.AsdfFile(tree) as asdf_file:  
-        #     asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
+        print('DEM calculation completed, Saving asdf file')
+        tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
+        print('Tree defined')
+        with asdf.AsdfFile(tree) as asdf_file:  
+            asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
+        print('asdf file save as ' + dem_arr_tit)
     else:
         print('Loading previously calculated DEM')
         arrs = asdf.open(dem_arr_tit)  
@@ -427,30 +430,29 @@ for img in range(start_img, len(flist[index])):
         elogt = arrs['elogt']
         chisq = arrs['chisq']
         logtemps = arrs['logtemps']
-    print('DEM calculation completed')
+    
     # Get a submap to have the scales and image properties.
-    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-    img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
-    img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
-    plot_dem_images(submap,dem,logtemps,img_arr_tit)
-    img_EM_tit = output_dir+'EM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit,CHB, CHB_in, CHB_out)
-    EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit)
-    # Maybe using ASDF
-    tree = {'EM_total':EM_total}
-    with asdf.AsdfFile(tree) as asdf_file:
-        asdf_file.write_to(output_dir+'EM_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf', all_array_compression='zlib')
-    img_temp_tit = output_dir+'Temp_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit,CHB, CHB_in, CHB_out)
-    Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit)
-    # np.savez(output_dir+'Temp_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.npz',Tempmap = Tempmap)
-    img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
-    Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
-    print('DEM plotted')
-    del dem, edem, mlogt, elogt, chisq, logtemps, EM_total
-
-
+    # submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+    # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    # plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+    # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
+    # plot_dem_images(submap,dem,logtemps,img_arr_tit)
+    # img_EM_tit = output_dir+'EM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit,CHB, CHB_in, CHB_out)
+    # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit)
+    # # Maybe using ASDF
+    # tree = {'EM_total':EM_total}
+    # with asdf.AsdfFile(tree) as asdf_file:
+    #     asdf_file.write_to(output_dir+'EM_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf', all_array_compression='zlib')
+    # img_temp_tit = output_dir+'Temp_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    # # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit,CHB, CHB_in, CHB_out)
+    # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit)
+    # # np.savez(output_dir+'Temp_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.npz',Tempmap = Tempmap)
+    # img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
+    # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
+    # print('DEM plotted')
+    del dem, edem, mlogt, elogt, chisq, logtemps
+    print('delete variables, moving to next time step')
 print('Job Done!')
