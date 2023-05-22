@@ -375,7 +375,7 @@ flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(
 flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
 time_array = [time_0094, time_0131, time_0171, time_0193, time_0211, time_0335]
 index = np.argmin(flength)
-print(index)
+# print(index)
 
 # Begin image processing
 start_img = closest(np.array(time_array[index][:]), dt.datetime.strptime(start_time,"%Y/%m/%d %H:%M:%S"))
