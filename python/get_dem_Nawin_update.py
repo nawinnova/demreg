@@ -73,7 +73,7 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:00:00'
+    start_time = '2018/10/31 00:01:23'
     end_time = '2018/10/31 01:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
