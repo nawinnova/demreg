@@ -60,10 +60,18 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
             except:
                 files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))    
         except OSError as e:
-            print('{}'.format(e) + ' for file ' + file_i)
-            files_dt.append(dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f'))
-            continue
-        
+            # Download new file
+            print('{}'.format(e) + ' for' + file_i +': Downloading new file')
+            files_dtload = dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f')
+            file_load = get_data(files_dtload-dt.timedelta(seconds=10), files_dtload+dt.timedelta(seconds=10), img_file_date, 10*u.second, passband, data_disk)
+            print("Download complete")
+            hdr = fits.getheader(file_load, 1, ignore_missing_simple=True)
+            try:
+                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
+            except:
+                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))  
+
+    
     left = bisect_left(files_dt, img_time_range[0])
     right = bisect_right(files_dt, img_time_range[1])
     files_out = files[left:right]
@@ -98,7 +106,7 @@ def event_info(data_disk):
     map = Map(files[ind.argmin()])
     bottom_left = SkyCoord(-650 * u.arcsec, -600 * u.arcsec, frame= map.coordinate_frame)
     bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
-    top_right = SkyCoord(150 * u.arcsec, 600 * u.arcsec, frame= map.coordinate_frame)
+    top_right = SkyCoord(100 * u.arcsec, 600 * u.arcsec, frame= map.coordinate_frame)
     top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
     
     pix_width = [(top_right_pix[0]-bottom_left_pix[0])/2, (top_right_pix[1]-bottom_left_pix[1])/2]
@@ -119,7 +127,7 @@ def get_data(start_time, end_time, img_file_date, cadence, pband, data_disk):
     attrs_time = a.Time(start_time, end_time)
     wvlnth = a.Wavelength(int(pband)*u.Angstrom, int(pband)*u.Angstrom)
     result = Fido.search(attrs_time, a.Instrument('AIA'), wvlnth, a.Sample(cadence))
-    files = Fido.fetch(result, path = data_disk+str(pband)+'/'+img_file_date, overwrite=True, progress=True)
+    files = Fido.fetch(result, path = data_disk+str(pband)+'/', overwrite=True, progress=True)
 
 ## Function to get AIA submap
 def get_submap(time_array,index,img,file,crd_cent,crd_width):
@@ -367,6 +375,7 @@ flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(
 flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
 time_array = [time_0094, time_0131, time_0171, time_0193, time_0211, time_0335]
 index = np.argmin(flength)
+print(index)
 
 # Begin image processing
 start_img = closest(np.array(time_array[index][:]), dt.datetime.strptime(start_time,"%Y/%m/%d %H:%M:%S"))
