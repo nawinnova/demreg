@@ -65,11 +65,12 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
             files_dtload = dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f')
             file_load = get_data(files_dtload-dt.timedelta(seconds=10), files_dtload+dt.timedelta(seconds=10), img_file_date, 10*u.second, passband, data_disk)
             print("Download complete")
-            hdr = fits.getheader(file_load, 1, ignore_missing_simple=True)
-            try:
-                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
-            except:
-                files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))  
+            files_dt.append(files_dtload)
+            # hdr = fits.getheader(file_load, 1, ignore_missing_simple=True)
+            # try:
+            #     files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
+            # except:
+            #     files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))  
 
     
     left = bisect_left(files_dt, img_time_range[0])
