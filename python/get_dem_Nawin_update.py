@@ -234,7 +234,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     cmap = plt.cm.get_cmap('cubehelix_r')
 
     for i, axi in enumerate(axes.flat):
-        new_dem=(dem[:,:,i*2]+dem[:,:,i*2+1])/2.
+        new_dem=(dem[:,:,i]+dem[:,:,i+1])/2.
         plotmap = Map(new_dem, submap.meta)
         plotmap.plot(axes=axi,norm=colors.LogNorm(vmin=1e19,vmax=1e22),cmap=cmap)
     
