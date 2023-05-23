@@ -247,7 +247,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
         if i < 6:
             x.set_ticklabel_visible(False)
 
-        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i*2],logtemps[i*2+1+1]))
+        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i],logtemps[i+1]))
 
     plt.tight_layout(pad=0.1, rect=[0, 0, 1, 0.98])
     plt.colorbar(ax=axes.ravel().tolist(),label='$\mathrm{DEM\;[cm^{-5}\;K^{-1}]}$',fraction=0.03, pad=0.02)
