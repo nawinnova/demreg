@@ -195,8 +195,10 @@ def calculate_dem(map_array, err_array):
     image_array = np.zeros((nx,ny,nf))
     for img in range(0,nf):
         image_array[:,:,img] = map_array[img].data
+    print('Created empty array for image data')
 
     trin=io.readsav('/disk/solar/nn2/demreg/python/aia_tresp_en.dat')
+    print('Loaded AIA response function')
         
     tresp_logt=np.array(trin['logt'])
     nt=len(tresp_logt)
@@ -212,35 +214,43 @@ def calculate_dem(map_array, err_array):
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
     mlogt=([np.mean([(np.log10(temps[i])),np.log10((temps[i+1]))]) for i in np.arange(0,len(temps)-1)])
+    print('Start dn2dem_pos function (Ian Hannah & Eduard Kontar code)')
     dem,edem,elogt,chisq,dn_reg=dn2dem_pos(image_array,err_array,trmatrix,tresp_logt,temps,max_iter=15)
     dem = dem.clip(min=0)
     return dem,edem,elogt,chisq,dn_reg,mlogt,logtemps
 
 ## Function to plot the DEM images
 def plot_dem_images(submap,dem,logtemps,img_arr_tit):
-    sz = dem.shape
-    pixel_loc = [int(sz[1]/2)-100, int(sz[0]/2)-100]
     nt=len(dem[0,0,:])
     # nt_new=int(nt/2)
-    nc, nr = 3, 2
-    plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
-    fig, axes = plt.subplots(nrows=nr, ncols=nc, figsize=(12,6),sharex=True,sharey=True)
-    fig.suptitle('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
-    fig.supxlabel('Pixels')
-    fig.supylabel('Pixels')
+    nc, nr = 3, 3
+    plt.rcParams.update({'font.size': 12,'font.family':"sans-serif",\
+                         'font.sans-serif':"Arial",'mathtext.default':"regular"})
+    fig, axes = plt.subplots(nrows=nr, ncols=nc, figsize=(10,12), sharex=True, sharey=True, subplot_kw=dict(projection=submap), 
+                             layout = 'constrained')
+    plt.suptitle('Image time = '+dt.datetime.strftime(submap.date.datetime, "%Y-%m-%dT%H:%M:%S"))
+    fig.supxlabel('Solar X (arcsec)')
+    fig.supylabel('Solar Y (arcsec)')
     cmap = plt.cm.get_cmap('cubehelix_r')
-    
-    for i, axi in enumerate(axes.flat):
-        new_dem= (dem[:,:,i*4]+dem[:,:,i*4+3])/2.
-        im = axi.imshow(new_dem,vmin=1e19,vmax=1e21,origin='lower',cmap=cmap, aspect='equal')
-        axi.plot(pixel_loc[0],pixel_loc[1],'x',markersize='10')
-        # axi.contour(CHB, colors = 'black',linewidths=0.5)
-        # axi.contour(CHB_in,colors = 'red',linewidths =0.5)
-        # axi.contour(CHB_out, colors = 'blue',linewidths =0.5)
-        axi.set_title('{0:.2f} - {1:.2f}'.format(logtemps[i*4],logtemps[i*4+3+1]))
 
-    plt.tight_layout()
-    plt.colorbar(im, ax=axes.ravel().tolist(),label='$\mathrm{DEM\;[cm^{-5}\;K^{-1}]}$',fraction=0.03, pad=0.02)
+    for i, axi in enumerate(axes.flat):
+        new_dem=(dem[:,:,i*2]+dem[:,:,i*2+1])/2.
+        plotmap = Map(new_dem, submap.meta)
+        plotmap.plot(axes=axi,norm=colors.LogNorm(vmin=1e19,vmax=1e22),cmap=cmap)
+    
+        y = axi.coords[1]
+        y.set_axislabel(' ')
+        if i == 1 or i == 2 or i == 4 or i == 5 or i == 7 or i == 8:
+            y.set_ticklabel_visible(False)
+        x = axi.coords[0]
+        x.set_axislabel(' ')
+        if i < 6:
+            x.set_ticklabel_visible(False)
+
+        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i*2],logtemps[i*2+1+1]))
+
+    plt.tight_layout(pad=0.1, rect=[0, 0, 1, 0.98])
+    plt.colorbar(ax=axes.ravel().tolist(),label='$\mathrm{DEM\;[cm^{-5}\;K^{-1}]}$',fraction=0.03, pad=0.02)
     plt.savefig(img_arr_tit, bbox_inches='tight')
     plt.close(fig)
     return
@@ -432,9 +442,9 @@ for img in range(start_img, len(flist[index])):
         logtemps = arrs['logtemps']
     
     # Get a submap to have the scales and image properties.
-    # submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-    # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+    img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+    plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
     # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
     # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
     # plot_dem_images(submap,dem,logtemps,img_arr_tit)
@@ -452,7 +462,7 @@ for img in range(start_img, len(flist[index])):
     # img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
     # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
     # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
-    # print('DEM plotted')
+    print('DEM plotted')
     del dem, edem, mlogt, elogt, chisq, logtemps
     print('delete variables, moving to next time step')
 print('Job Done!')
