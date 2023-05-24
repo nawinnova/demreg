@@ -82,7 +82,7 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:00:00'
+    start_time = '2018/10/31 00:12:00'
     end_time = '2018/10/31 01:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
@@ -195,10 +195,10 @@ def calculate_dem(map_array, err_array):
     image_array = np.zeros((nx,ny,nf))
     for img in range(0,nf):
         image_array[:,:,img] = map_array[img].data
-    print('Created empty array for image data')
+    # print('Created empty array for image data')
 
     trin=io.readsav('/disk/solar/nn2/demreg/python/aia_tresp_en.dat')
-    print('Loaded AIA response function')
+    # print('Loaded AIA response function')
         
     tresp_logt=np.array(trin['logt'])
     nt=len(tresp_logt)
@@ -427,7 +427,7 @@ for img in range(start_img, len(flist[index])):
             continue
         print('DEM calculation completed, Saving asdf file')
         tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
-        print('Tree defined')
+        # print('Tree defined')
         with asdf.AsdfFile(tree) as asdf_file:  
             asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
         print('asdf file save as ' + dem_arr_tit)
@@ -463,6 +463,6 @@ for img in range(start_img, len(flist[index])):
     # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
     # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
     print('DEM plotted')
-    del dem, edem, mlogt, elogt, chisq, logtemps
+    del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
     print('delete variables, moving to next time step')
 print('Job Done!')

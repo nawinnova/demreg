@@ -6,6 +6,7 @@ import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from threadpoolctl import threadpool_limits
+import os
 
 def demmap_pos(dd,ed,rmatrix,logt,dlogt,glc,reg_tweak=1.0,max_iter=10,rgt_fact=1.5,dem_norm0=None,nmu=42,warn=False,l_emd=False):
     """
@@ -114,7 +115,7 @@ def demmap_pos(dd,ed,rmatrix,logt,dlogt,glc,reg_tweak=1.0,max_iter=10,rgt_fact=1
         niter=(int(np.floor((na)/n_par)))
 #       Put this here to make sure running dem calc in parallel, not the underlying np/gsvd stuff (this correct/needed?)  
         with threadpool_limits(limits=1):
-            with ProcessPoolExecutor() as exe:
+            with ProcessPoolExecutor(max_workers=os.cpu_count()-1) as exe:
                 futures=[exe.submit(dem_unwrap, dd[i*n_par:(i+1)*n_par,:],ed[i*n_par:(i+1)*n_par,:],rmatrix,logt,dlogt,glc, \
                     reg_tweak=reg_tweak,max_iter=max_iter,rgt_fact=rgt_fact,dem_norm0=dem_norm0[i*n_par:(i+1)*n_par,:],\
                         nmu=nmu,warn=warn,l_emd=l_emd) \
