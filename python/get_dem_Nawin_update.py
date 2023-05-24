@@ -30,6 +30,8 @@ from aiapy.calibrate import register, update_pointing, estimate_error, normalize
 import aiapy.psf
 import asdf
 from bisect import bisect_left, bisect_right
+from multiprocessing import set_start_method
+
 
 
 def closest(list, value):
@@ -83,7 +85,7 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:12:00'
+    start_time = '2018/10/31 00:15:47'
     end_time = '2018/10/31 01:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
@@ -347,6 +349,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
 
  
 if __name__ == '__main__':
+    set_start_method("spawn")
     ## Define constants and create the data directories
     data_disk = '/disk/solar/nn2/data/2018/10/31/00/AIA'
 

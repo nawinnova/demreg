@@ -6,8 +6,7 @@ import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from threadpoolctl import threadpool_limits
-from multiprocessing import set_start_method
-set_start_method("spawn")
+
 
 
 
