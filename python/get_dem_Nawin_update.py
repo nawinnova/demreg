@@ -31,6 +31,7 @@ import aiapy.psf
 import asdf
 from bisect import bisect_left, bisect_right
 
+
 def closest(list, value):
     """
     Get the closest element to value in list
@@ -255,214 +256,214 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     plt.close(fig)
     return
 
-#Calculate and plot total EM
-def plot_em_images_calc(submap,dem,logtemps, img_EM_tit):
-    temps = 10**(logtemps)
-    EM_temp = np.zeros((dem.shape[0],dem.shape[1]))
-    for j in range ((dem.shape[2])-1):
-        #EM = sum(dem*deltaT)
-        EM_temp = EM_temp + dem[:,:,j]*(temps[j+1]-temps[j])
+# #Calculate and plot total EM
+# def plot_em_images_calc(submap,dem,logtemps, img_EM_tit):
+#     temps = 10**(logtemps)
+#     EM_temp = np.zeros((dem.shape[0],dem.shape[1]))
+#     for j in range ((dem.shape[2])-1):
+#         #EM = sum(dem*deltaT)
+#         EM_temp = EM_temp + dem[:,:,j]*(temps[j+1]-temps[j])
     
-    EM_total = EM_temp
-    EM_min = np.min(EM_total[np.nonzero(EM_total)])
-    #EM_max = np.max(EM_total)
+#     EM_total = EM_temp
+#     EM_min = np.min(EM_total[np.nonzero(EM_total)])
+#     #EM_max = np.max(EM_total)
         
-    plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
-    cmap = plt.cm.get_cmap('plasma')
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1, projection=submap)
-    ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
-    ax.set_xlabel('arcsec')
-    ax.set_ylabel('arcsec')
-    im = ax.imshow(EM_total,vmin = EM_min, vmax=1e27,origin='lower',cmap=cmap,aspect='equal')
-    # ax.contour(CHB, colors = 'black',linewidths=0.5)
-    # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
-    # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
-    plt.tight_layout()
-    plt.colorbar(im,label='$\mathrm{EM\;[cm^{-5}]}$',fraction=0.03, pad=0.02)
-    plt.savefig(img_EM_tit, bbox_inches='tight')
-    plt.close(fig)
+#     plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
+#     cmap = plt.cm.get_cmap('plasma')
+#     fig = plt.figure()
+#     ax = fig.add_subplot(1,1,1, projection=submap)
+#     ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
+#     ax.set_xlabel('arcsec')
+#     ax.set_ylabel('arcsec')
+#     im = ax.imshow(EM_total,vmin = EM_min, vmax=1e27,origin='lower',cmap=cmap,aspect='equal')
+#     # ax.contour(CHB, colors = 'black',linewidths=0.5)
+#     # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
+#     # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
+#     plt.tight_layout()
+#     plt.colorbar(im,label='$\mathrm{EM\;[cm^{-5}]}$',fraction=0.03, pad=0.02)
+#     plt.savefig(img_EM_tit, bbox_inches='tight')
+#     plt.close(fig)
     
-    return EM_total
+#     return EM_total
 
-#plot EM weighted temperature and density map based by Saqri(2020)
-def plot_temp_images(submap,dem, EM_total,logtemps, img_temp_tit):
-    temps = 10**(logtemps)
-    upfrac = np.zeros((EM_total.shape))
-    #T = (sum(DEM*deltaT)/EM)
-    for j in range (dem.shape[2]-1):
-        upfrac_plus = dem[:,:,j]*temps[j]*(temps[j+1]-temps[j])
-        upfrac = upfrac+upfrac_plus
+# #plot EM weighted temperature and density map based by Saqri(2020)
+# def plot_temp_images(submap,dem, EM_total,logtemps, img_temp_tit):
+#     temps = 10**(logtemps)
+#     upfrac = np.zeros((EM_total.shape))
+#     #T = (sum(DEM*deltaT)/EM)
+#     for j in range (dem.shape[2]-1):
+#         upfrac_plus = dem[:,:,j]*temps[j]*(temps[j+1]-temps[j])
+#         upfrac = upfrac+upfrac_plus
 
-    T_weighted = upfrac/EM_total
-    T_min = np.nanmin(T_weighted)
-    T_weighted_plot = np.nan_to_num(T_weighted,nan=0)
+#     T_weighted = upfrac/EM_total
+#     T_min = np.nanmin(T_weighted)
+#     T_weighted_plot = np.nan_to_num(T_weighted,nan=0)
     
-    plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
-    cmap = plt.cm.get_cmap('gist_heat')
-    cmap.set_bad(color='green')
+#     plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
+#     cmap = plt.cm.get_cmap('gist_heat')
+#     cmap.set_bad(color='green')
     
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1, projection=submap)
-    ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
-    ax.set_xlabel('arcsec')
-    ax.set_ylabel('arcsec')
-    im = ax.imshow(T_weighted_plot,vmin = T_min, vmax = 2e6,origin='lower',cmap=cmap,aspect='equal')
-    # ax.contour(CHB, colors = 'black',linewidths=0.5)
-    # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
-    # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
-    plt.tight_layout()
-    plt.colorbar(im,label='$\mathrm{T\;[K]}$',fraction=0.03, pad=0.02)
-    plt.savefig(img_temp_tit, bbox_inches='tight')
-    plt.close(fig)
-    return T_weighted_plot
+#     fig = plt.figure()
+#     ax = fig.add_subplot(1,1,1, projection=submap)
+#     ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
+#     ax.set_xlabel('arcsec')
+#     ax.set_ylabel('arcsec')
+#     im = ax.imshow(T_weighted_plot,vmin = T_min, vmax = 2e6,origin='lower',cmap=cmap,aspect='equal')
+#     # ax.contour(CHB, colors = 'black',linewidths=0.5)
+#     # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
+#     # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
+#     plt.tight_layout()
+#     plt.colorbar(im,label='$\mathrm{T\;[K]}$',fraction=0.03, pad=0.02)
+#     plt.savefig(img_temp_tit, bbox_inches='tight')
+#     plt.close(fig)
+#     return T_weighted_plot
 
-def plot_dens_images(submap, EM_total, img_dens_tit):
-    #Scale Height h = 42 Mm (Saqri 2020)
-    h_saq = 42*(10**8) #cm
-    #Calc mean density n = sqrt(EM/h)
-    density_mean_saq = np.sqrt(EM_total/h_saq)
-    dens_min = np.min(density_mean_saq[np.nonzero(density_mean_saq)])
-    #dens_max = np.max(density_mean_saq)
+# def plot_dens_images(submap, EM_total, img_dens_tit):
+#     #Scale Height h = 42 Mm (Saqri 2020)
+#     h_saq = 42*(10**8) #cm
+#     #Calc mean density n = sqrt(EM/h)
+#     density_mean_saq = np.sqrt(EM_total/h_saq)
+#     dens_min = np.min(density_mean_saq[np.nonzero(density_mean_saq)])
+#     #dens_max = np.max(density_mean_saq)
     
-    plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
-    cmap = plt.cm.get_cmap('bone')
-    cmap.set_bad(color='green')
+#     plt.rcParams.update({'font.size': 12,'mathtext.default':"regular"})
+#     cmap = plt.cm.get_cmap('bone')
+#     cmap.set_bad(color='green')
     
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1, projection=submap)
-    ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
-    ax.set_xlabel('arcsec')
-    ax.set_ylabel('arcsec')
-    im = ax.imshow(density_mean_saq,vmin = dens_min, vmax = 3e8,origin='lower',cmap=cmap,aspect='equal')
-    # ax.contour(CHB, colors = 'black',linewidths=0.5)
-    # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
-    # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
-    plt.tight_layout()
-    plt.colorbar(im,label=r'$\bar{n}\mathrm{\;[cm^{-3}]}$',fraction=0.03, pad=0.02)
-    plt.savefig(img_dens_tit, bbox_inches='tight')
-    plt.close(fig)
-    return density_mean_saq
+#     fig = plt.figure()
+#     ax = fig.add_subplot(1,1,1, projection=submap)
+#     ax.set_title('Image time = '+time.Time.strftime(submap.date, "%Y-%m-%dT%H:%M:%S"))
+#     ax.set_xlabel('arcsec')
+#     ax.set_ylabel('arcsec')
+#     im = ax.imshow(density_mean_saq,vmin = dens_min, vmax = 3e8,origin='lower',cmap=cmap,aspect='equal')
+#     # ax.contour(CHB, colors = 'black',linewidths=0.5)
+#     # ax.contour(CHB_in,colors = 'red',linewidths =0.5)
+#     # ax.contour(CHB_out, colors = 'blue',linewidths =0.5)
+#     plt.tight_layout()
+#     plt.colorbar(im,label=r'$\bar{n}\mathrm{\;[cm^{-3}]}$',fraction=0.03, pad=0.02)
+#     plt.savefig(img_dens_tit, bbox_inches='tight')
+#     plt.close(fig)
+#     return density_mean_saq
 
+ 
+if __name__ == '__main__':
+    ## Define constants and create the data directories
+    data_disk = '/disk/solar/nn2/data/2018/10/31/00/AIA'
 
+    # os.makedirs(data_disk, exist_ok='True')
 
-## Define constants and create the data directories
-data_disk = '/disk/solar/nn2/data/2018/10/31/00/AIA'
+    ## Get the event information
+    start_time,end_time,ref_time,cadence,crd_cent,crd_width,ref_file_date,img_file_date,img_time_range = event_info(data_disk)
 
-# os.makedirs(data_disk, exist_ok='True')
+    ## Define and create the output directories
 
-## Get the event information
-start_time,end_time,ref_time,cadence,crd_cent,crd_width,ref_file_date,img_file_date,img_time_range = event_info(data_disk)
+    output_dir = '/disk/solar/nn2/results/DEM_update/'
 
-## Define and create the output directories
+    os.makedirs(output_dir, exist_ok='True')
+    passband = [94, 131, 171, 193, 211, 335]
 
-output_dir = '/disk/solar/nn2/results/DEM_update/'
+    ## Download the data
+    # for pband in passband:
+    #     files, file_time = get_filelist(data_disk, pband, img_file_date, img_time_range)
+    #     n_img = ((img_time_range[1]-img_time_range[0]).total_seconds()/(cadence/u.second))
 
-os.makedirs(output_dir, exist_ok='True')
-passband = [94, 131, 171, 193, 211, 335]
+    #     if n_img > len(files):
+    #         print('Fewer than expected FITS files for '+str(pband)+' passband')
+    #         print('Downloading data for '+str(pband)+' passband')
+    #         get_data(start_time, end_time, img_file_date, cadence, pband, data_disk)
+    #     else:
+    #         print('Data already downloaded for '+str(pband).rjust(4, "0")+' passband')
 
-## Download the data
-# for pband in passband:
-#     files, file_time = get_filelist(data_disk, pband, img_file_date, img_time_range)
-#     n_img = ((img_time_range[1]-img_time_range[0]).total_seconds()/(cadence/u.second))
+    ## Get list of files from each passband to identify the smallest number of files
+    print('Getting list of files')
+    f_0094, time_0094 = get_filelist(data_disk, 94, img_file_date, img_time_range)
+    f_0131, time_0131 = get_filelist(data_disk, 131, img_file_date, img_time_range)
+    f_0171, time_0171 = get_filelist(data_disk, 171, img_file_date, img_time_range)
+    f_0193, time_0193 = get_filelist(data_disk, 193, img_file_date, img_time_range)
+    f_0211, time_0211 = get_filelist(data_disk, 211, img_file_date, img_time_range)
+    f_0335, time_0335 = get_filelist(data_disk, 335, img_file_date, img_time_range)
 
-#     if n_img > len(files):
-#         print('Fewer than expected FITS files for '+str(pband)+' passband')
-#         print('Downloading data for '+str(pband)+' passband')
-#         get_data(start_time, end_time, img_file_date, cadence, pband, data_disk)
-#     else:
-#         print('Data already downloaded for '+str(pband).rjust(4, "0")+' passband')
+    flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(f_0335)]
+    flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
+    time_array = [time_0094, time_0131, time_0171, time_0193, time_0211, time_0335]
+    index = np.argmin(flength)
+    # print(index)
 
-## Get list of files from each passband to identify the smallest number of files
-print('Getting list of files')
-f_0094, time_0094 = get_filelist(data_disk, 94, img_file_date, img_time_range)
-f_0131, time_0131 = get_filelist(data_disk, 131, img_file_date, img_time_range)
-f_0171, time_0171 = get_filelist(data_disk, 171, img_file_date, img_time_range)
-f_0193, time_0193 = get_filelist(data_disk, 193, img_file_date, img_time_range)
-f_0211, time_0211 = get_filelist(data_disk, 211, img_file_date, img_time_range)
-f_0335, time_0335 = get_filelist(data_disk, 335, img_file_date, img_time_range)
+    # Begin image processing
+    start_img = closest(np.array(time_array[index][:]), dt.datetime.strptime(start_time,"%Y/%m/%d %H:%M:%S"))
+    for img in range(start_img, len(flist[index])):
 
-flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(f_0335)]
-flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
-time_array = [time_0094, time_0131, time_0171, time_0193, time_0211, time_0335]
-index = np.argmin(flength)
-# print(index)
+        print('Processing image, time = '+dt.datetime.strftime(time_array[index][img], "%Y-%m-%dT%H:%M:%S"))
 
-# Begin image processing
-start_img = closest(np.array(time_array[index][:]), dt.datetime.strptime(start_time,"%Y/%m/%d %H:%M:%S"))
-for img in range(start_img, len(flist[index])):
-
-    print('Processing image, time = '+dt.datetime.strftime(time_array[index][img], "%Y-%m-%dT%H:%M:%S"))
-
-# Get and process images.
-    err_arr_tit = output_dir+'error_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
-    map_arr_tit = output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'_{index:03}.fits'
-    # files = os.path.exists(err_arr_tit)
-#    if files == False:
-    try:
-        map_array, err_array = prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,crd_cent,crd_width)
-    except OSError as e:
-        print('{}'.format(e))
-        continue
-#       map_array.save(map_arr_tit,overwrite='True')
-    #   tree = {'err_array':err_array}
-    #   with asdf.AsdfFile(tree) as asdf_file:
-    #     asdf_file.write_to(err_arr_tit, all_array_compression='zlib')
-    
-#    else:
-#        print('Loading previously prepped images')
-#        arrs = asdf.open(err_arr_tit)
-#        err_array = arrs['err_array']
-#        ffin=sorted(glob.glob(output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'*.fits'))
-#        map_array = Map(ffin)
-    # Calculate DEMs
-    dem_arr_tit = output_dir+'dem_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
-    files = os.path.exists(dem_arr_tit)
-    if files == False:
-        print('Calculating DEM')
+    # Get and process images.
+        err_arr_tit = output_dir+'error_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
+        map_arr_tit = output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'_{index:03}.fits'
+        # files = os.path.exists(err_arr_tit)
+    #    if files == False:
         try:
-            dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
+            map_array, err_array = prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,crd_cent,crd_width)
         except OSError as e:
             print('{}'.format(e))
             continue
-        print('DEM calculation completed, Saving asdf file')
-        tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
-        # print('Tree defined')
-        with asdf.AsdfFile(tree) as asdf_file:  
-            asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
-        print('asdf file save as ' + dem_arr_tit)
-    else:
-        print('Loading previously calculated DEM')
-        arrs = asdf.open(dem_arr_tit)  
-        dem = arrs['dem']
-        edem = arrs['edem']
-        mlogt = arrs['mlogt']
-        elogt = arrs['elogt']
-        chisq = arrs['chisq']
-        logtemps = arrs['logtemps']
-    
-    # Get a submap to have the scales and image properties.
-    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-    img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
-    # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
-    # plot_dem_images(submap,dem,logtemps,img_arr_tit)
-    # img_EM_tit = output_dir+'EM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit,CHB, CHB_in, CHB_out)
-    # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit)
-    # # Maybe using ASDF
-    # tree = {'EM_total':EM_total}
-    # with asdf.AsdfFile(tree) as asdf_file:
-    #     asdf_file.write_to(output_dir+'EM_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf', all_array_compression='zlib')
-    # img_temp_tit = output_dir+'Temp_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit,CHB, CHB_in, CHB_out)
-    # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit)
-    # # np.savez(output_dir+'Temp_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.npz',Tempmap = Tempmap)
-    # img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-    # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
-    # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
-    print('DEM plotted')
-    del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
-    print('delete variables, moving to next time step')
-print('Job Done!')
+    #       map_array.save(map_arr_tit,overwrite='True')
+        #   tree = {'err_array':err_array}
+        #   with asdf.AsdfFile(tree) as asdf_file:
+        #     asdf_file.write_to(err_arr_tit, all_array_compression='zlib')
+        
+    #    else:
+    #        print('Loading previously prepped images')
+    #        arrs = asdf.open(err_arr_tit)
+    #        err_array = arrs['err_array']
+    #        ffin=sorted(glob.glob(output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'*.fits'))
+    #        map_array = Map(ffin)
+        # Calculate DEMs
+        dem_arr_tit = output_dir+'dem_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
+        files = os.path.exists(dem_arr_tit)
+        if files == False:
+            print('Calculating DEM')
+            try:
+                dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
+            except OSError as e:
+                print('{}'.format(e))
+                continue
+            print('DEM calculation completed, Saving asdf file')
+            tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
+            # print('Tree defined')
+            with asdf.AsdfFile(tree) as asdf_file:  
+                asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
+            print('asdf file save as ' + dem_arr_tit)
+        else:
+            print('Loading previously calculated DEM')
+            arrs = asdf.open(dem_arr_tit)  
+            dem = arrs['dem']
+            edem = arrs['edem']
+            mlogt = arrs['mlogt']
+            elogt = arrs['elogt']
+            chisq = arrs['chisq']
+            logtemps = arrs['logtemps']
+        
+        # Get a submap to have the scales and image properties.
+        submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+        img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+        # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
+        # plot_dem_images(submap,dem,logtemps,img_arr_tit)
+        # img_EM_tit = output_dir+'EM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit,CHB, CHB_in, CHB_out)
+        # # EM_total = plot_em_images_calc(submap,dem,logtemps,img_EM_tit)
+        # # Maybe using ASDF
+        # tree = {'EM_total':EM_total}
+        # with asdf.AsdfFile(tree) as asdf_file:
+        #     asdf_file.write_to(output_dir+'EM_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf', all_array_compression='zlib')
+        # img_temp_tit = output_dir+'Temp_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        # # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit,CHB, CHB_in, CHB_out)
+        # Tempmap = plot_temp_images(submap,dem,EM_total,logtemps,img_temp_tit)
+        # # np.savez(output_dir+'Temp_array_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.npz',Tempmap = Tempmap)
+        # img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
+        # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
+        print('DEM plotted')
+        del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
+        print('delete variables, moving to next time step')
+    print('Job Done!')
