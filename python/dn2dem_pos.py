@@ -212,7 +212,7 @@ def dn2dem_pos(dn_in,edn_in,tresp,tresp_logt,temps,reg_tweak=1.0,max_iter=10,glo
 # *****************************************************
 # Should always be just running the first part of if here as setting dem01d to array of 1s if nothing given
 # So now more a check dimensions of things are correct 
-    print('Start demmap_pos function')
+    # print('Start demmap_pos function')
     if ( dem0.ndim==dn.ndim ):
         dem01d=np.reshape(dem0,[nx*ny,nt])
         dem1d,edem1d,elogt1d,chisq1d,dn_reg1d=demmap_pos(dn1d,edn1d,rmatrix,logt,dlogt,glc,\
