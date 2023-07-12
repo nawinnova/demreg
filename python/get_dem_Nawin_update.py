@@ -85,7 +85,7 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:15:47'
+    start_time = '2018/10/31 00:00:00'
     end_time = '2018/10/31 01:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
@@ -157,22 +157,9 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
 
     farray = [f_0094[ind_0094], f_0131[ind_0131], f_0171[ind_0171], f_0193[ind_0193], f_0211[ind_0211], f_0335[ind_0335]]
     maps = Map(farray)
-    with propagate_with_solar_surface():
-        diffrot_cent = crd_cent.transform_to(maps[0].coordinate_frame)
-    bl = SkyCoord((diffrot_cent.Tx.arcsecond-crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond-crd_width[1])*u.arcsec,
-                  frame = maps[0].coordinate_frame)
-    bl_x, bl_y = maps[0].world_to_pixel(bl)
-    tr = SkyCoord((diffrot_cent.Tx.arcsecond+crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond+crd_width[1])*u.arcsec,
-                  frame = maps[0].coordinate_frame)
-    tr_x, tr_y = maps[0].world_to_pixel(tr)
-    submap_0 = maps[0].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
-    nx,ny = submap_0.data.shape
-    nf=len(maps)
 
     print('Prepping images & deconvolving with PSF')
-    map_arr = []
-    error_array = np.zeros([nx, ny, nf])
-
+    
     for m in range(0, len(maps)):
         psf = aiapy.psf.psf(maps[m].wavelength)
         aia_map_deconvolved = aiapy.psf.deconvolve(maps[m], psf=psf)
@@ -180,10 +167,32 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
         aia_map_registered = register(aia_map_updated_pointing)
         aia_map_corrected = correct_degradation(aia_map_registered)
         aia_map_norm = normalize_exposure(aia_map_corrected)
-        submap = aia_map_norm.submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
+        #Replace maps with prepped maps
+        maps[m] = aia_map_norm
+
+    #Diff rotate and get submap
+    with propagate_with_solar_surface():
+        diffrot_cent = crd_cent.transform_to(maps[3].coordinate_frame)
+    bl = SkyCoord((diffrot_cent.Tx.arcsecond-crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond-crd_width[1])*u.arcsec,
+                  frame = maps[3].coordinate_frame)
+    bl_x, bl_y = maps[3].world_to_pixel(bl)
+    tr = SkyCoord((diffrot_cent.Tx.arcsecond+crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond+crd_width[1])*u.arcsec,
+                  frame = maps[0].coordinate_frame)
+    tr_x, tr_y = maps[3].world_to_pixel(tr)
+    submap_0 = maps[3].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
+    nx,ny = submap_0.data.shape
+    nf=len(maps)
+    map_arr = []
+    error_array = np.zeros([nx, ny, nf])
+
+    eclipse_correction = [0.7,0.6,3.4,5.2,1.6,0.6] #Heinemann et al. (2021)
+    for n in range(0, len(maps)):
+        submap = maps[n].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
         map_arr.append(submap)
         num_pix=submap.data.size
-        error_array[:,:,m] = estimate_error(submap.data*(u.ct/u.pix),submap.wavelength,num_pix)
+        error_array[:,:,n] = estimate_error(submap.data*(u.ct/u.pix),submap.wavelength,num_pix)
+    #Correct values of DEM estimated error - Using eclipse correction by Heinemann et al. (2021)
+        error_array[:,:,n] = error_array[:,:,n]+eclipse_correction[n]
 
     map_array = Map(map_arr[0],map_arr[1],map_arr[2],map_arr[3],
                     map_arr[4],map_arr[5],sequence=True,sortby=None) 
