@@ -456,7 +456,7 @@ if __name__ == '__main__':
         
         # Get a submap to have the scales and image properties.
         submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-        img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+        img_arr_tit = output_dir+'/DEM_image/DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
         plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
         # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
         # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
