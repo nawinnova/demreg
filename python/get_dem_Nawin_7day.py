@@ -304,8 +304,8 @@ if __name__ == '__main__':
     ## Define constants and create the data directories
     data_disk = '/disk/solar/nn2/data/'
     data_disk_date = ['2018/10/28', '2018/10/29', '2018/10/30', '2018/10/31', '2018/11/01', '2018/11/02', '2018/11/03', '2018/11/04']
-    #select only last 2 days
-    # data_disk_date = data_disk_date[6:]
+    #select only 1 day
+    data_disk_date = data_disk_date[1]
     output_dir = '/disk/solarz3/nn2/results/DEM_7day/'
     os.makedirs(output_dir, exist_ok='True')
 
