@@ -296,6 +296,12 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     plt.close(fig)
     return
 
+def checknumimages_10min(farray,timearray,n_img):
+    if len(farray) > n_img:
+        farray = farray[::50]
+        timearray = timearray[::50]
+    return farray, timearray
+
 
 
  
@@ -305,7 +311,7 @@ if __name__ == '__main__':
     data_disk = '/disk/solar/nn2/data/'
     data_disk_date = ['2018/10/28', '2018/10/29', '2018/10/30', '2018/10/31', '2018/11/01', '2018/11/02', '2018/11/03', '2018/11/04']
     #select only 1 day
-    data_disk_date = data_disk_date[0:2]
+    data_disk_date = data_disk_date[1:4]
     output_dir = '/disk/solarz3/nn2/results/DEM_7day/'
     os.makedirs(output_dir, exist_ok='True')
 
@@ -350,10 +356,12 @@ if __name__ == '__main__':
             time_pre = [time_0094, time_0131, time_0171, time_0193, time_0211, time_0335]
 
             # Reduce no. of file if there is more files than expected:
-            for i in range(0, len(flist_pre)):
-                if len(flist_pre[i]) > n_img:
-                    flist_pre[i] = flist_pre[i][::50]
-                    time_pre[i] = time_pre[i][::50]
+            f_0094, time_0094 = checknumimages_10min(f_0094, time_0094, n_img)
+            f_0131, time_0131 = checknumimages_10min(f_0131, time_0131, n_img)
+            f_0171, time_0171 = checknumimages_10min(f_0171, time_0171, n_img)
+            f_0193, time_0193 = checknumimages_10min(f_0193, time_0193, n_img)
+            f_0211, time_0211 = checknumimages_10min(f_0211, time_0211, n_img)
+            f_0335, time_0335 = checknumimages_10min(f_0335, time_0335, n_img)
 
             flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(f_0335)]
             flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
@@ -407,24 +415,24 @@ if __name__ == '__main__':
                     with asdf.AsdfFile(tree) as asdf_file:  
                         asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
                     print('asdf file save as ' + dem_arr_tit)
+                    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+                    img_arr_tit = output_dir+'DEM_image/DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+                    plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+                    print('DEM plotted')
+                    del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
+                    print('delete variables, moving to next time step')
                 else:
                     print('Loading previously calculated DEM')
-                    arrs = asdf.open(dem_arr_tit)  
-                    dem = arrs['dem']
-                    edem = arrs['edem']
-                    mlogt = arrs['mlogt']
-                    elogt = arrs['elogt']
-                    chisq = arrs['chisq']
-                    logtemps = arrs['logtemps']
+                    continue
+                    # arrs = asdf.open(dem_arr_tit)  
+                    # dem = arrs['dem']
+                    # edem = arrs['edem']
+                    # mlogt = arrs['mlogt']
+                    # elogt = arrs['elogt']
+                    # chisq = arrs['chisq']
+                    # logtemps = arrs['logtemps']
                 
                 # Get a submap to have the scales and image properties.
-                submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-                img_arr_tit = output_dir+'DEM_image/DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-                plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
-                print('DEM plotted')
-                del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
-                print('delete variables, moving to next time step')
-            
             print('Moving on to next hour')
             start_hour = start_hour+dt.timedelta(hours=1)
         
