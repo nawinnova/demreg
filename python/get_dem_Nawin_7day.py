@@ -206,7 +206,7 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
                   frame = maps[3].coordinate_frame)
     bl_x, bl_y = maps[3].world_to_pixel(bl)
     tr = SkyCoord((diffrot_cent.Tx.arcsecond+crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond+crd_width[1])*u.arcsec,
-                  frame = maps[0].coordinate_frame)
+                  frame = maps[3].coordinate_frame)
     tr_x, tr_y = maps[3].world_to_pixel(tr)
     submap_0 = maps[3].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
     nx,ny = submap_0.data.shape
