@@ -304,7 +304,6 @@ if __name__ == '__main__':
     # data_disk_date = ['2018/10/28', '2018/10/29', '2018/10/30', '2018/10/31', '2018/11/01', '2018/11/02', '2018/11/03', '2018/11/04']
     data_disk_date = ['2015/11/01','2015/11/02']
     #select only 1 day
-    data_disk_date = data_disk_date[0]
     output_dir = '/disk/solarz3/nn2/LucieFL/results/'
     output_dir_pic = output_dir+'DEM_images/'
     os.makedirs(output_dir, exist_ok='True')
@@ -313,6 +312,8 @@ if __name__ == '__main__':
     passband = [94, 131, 171, 193, 211, 335]
 
     for date in data_disk_date:
+        if date == data_disk_date[-1]:
+            break
         print('Start Processing on date ' + date)
         start_time,end_time,ref_time,cadence,crd_cent,crd_width,ref_file_date,img_file_date,img_time_range = event_info(data_disk, date)
 
@@ -432,5 +433,5 @@ if __name__ == '__main__':
             start_hour = start_hour+dt.timedelta(hours=1)
         
         print('Moving to next date')
-    
+        
     print('Job Done!')
