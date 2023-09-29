@@ -123,9 +123,12 @@ def event_info(data_disk, data_disk_date):
 
     strt_time = dt.datetime.strptime(ref_time, "%Y/%m/%d %H:%M:%S")
     hour_ref = strt_time.hour
-    ref_time_range = [strt_time-dt.timedelta(seconds=9), strt_time+dt.timedelta(seconds=10)]
+    ref_time_range = [strt_time-dt.timedelta(seconds=6), strt_time+dt.timedelta(seconds=12)]
 
     files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
+    if len(files) == 0:
+        get_data_AIA(ref_time_range[0], ref_time_range[1], 12*u.second, 193, data_disk+ref_file_date, hour_ref, overwrite=False)
+        files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
 
     ind = np.abs([t - strt_time for t in files_dt])
     map = Map(files[ind.argmin()])
