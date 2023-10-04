@@ -269,7 +269,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     cmap = plt.cm.get_cmap('cubehelix_r')
 
     for i, axi in enumerate(axes.flat):
-        new_dem=(dem[:,:,i]+dem[:,:,i+1])/2.
+        new_dem=(dem[:,:,i]+dem[:,:,i*2+1])/2.
         plotmap = Map(new_dem, submap.meta)
         plotmap.plot(axes=axi,norm=colors.LogNorm(vmin=1e19,vmax=1e22),cmap=cmap)
     
@@ -282,7 +282,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
         if i < 6:
             x.set_ticklabel_visible(False)
 
-        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i],logtemps[i+1]))
+        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i*2],logtemps[i*2+1+1]))
 
     plt.tight_layout(pad=0.1, rect=[0, 0, 1, 0.98])
     plt.colorbar(ax=axes.ravel().tolist(),label='$\mathrm{DEM\;[cm^{-5}\;K^{-1}]}$',fraction=0.03, pad=0.02)
@@ -414,22 +414,24 @@ if __name__ == '__main__':
                     with asdf.AsdfFile(tree) as asdf_file:  
                         asdf_file.write_to(dem_arr_tit, all_array_compression='zlib')
                     print('asdf file save as ' + dem_arr_tit)
-                    submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-                    img_arr_tit = output_dir_pic+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-                    plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
-                    print('DEM plotted')
-                    del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
-                    print('delete variables, moving to next time step')
                 else:
                     print('Loading previously calculated DEM')
-                    continue
-                    # arrs = asdf.open(dem_arr_tit)  
-                    # dem = arrs['dem']
-                    # edem = arrs['edem']
-                    # mlogt = arrs['mlogt']
-                    # elogt = arrs['elogt']
-                    # chisq = arrs['chisq']
-                    # logtemps = arrs['logtemps']
+                    arrs = asdf.open(dem_arr_tit)  
+                    dem = arrs['dem']
+                    edem = arrs['edem']
+                    mlogt = arrs['mlogt']
+                    elogt = arrs['elogt']
+                    chisq = arrs['chisq']
+                    logtemps = arrs['logtemps']
+                    
+                
+                submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+                img_arr_tit = output_dir_pic+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+                plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+                print('DEM plotted')
+                del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
+                print('delete variables, moving to next time step')
+            
                 
                 # Get a submap to have the scales and image properties.
             print('Moving on to next hour')
