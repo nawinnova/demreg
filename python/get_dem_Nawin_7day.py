@@ -297,7 +297,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     return
 
 def checknumimages_10min(farray,timearray,n_img):
-    if len(farray) > n_img:
+    if len(farray) > n_img+1:
         farray = farray[::50]
         timearray = timearray[::50]
     return farray, timearray
