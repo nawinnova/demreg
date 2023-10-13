@@ -123,7 +123,7 @@ def event_info(data_disk, data_disk_date):
 
     strt_time = dt.datetime.strptime(ref_time, "%Y/%m/%d %H:%M:%S")
     hour_ref = strt_time.hour
-    ref_time_range = [strt_time-dt.timedelta(seconds=6), strt_time+dt.timedelta(seconds=12)]
+    ref_time_range = [strt_time-dt.timedelta(seconds=6), strt_time+dt.timedelta(seconds=7)]
 
     files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
     if len(files) == 0:
