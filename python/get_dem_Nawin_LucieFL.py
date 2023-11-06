@@ -113,7 +113,8 @@ def event_info(data_disk, data_disk_date):
     cadence = 10*u.minute #cadence of AIA images
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2015/11/01 00:00:06'
+    # ref_time = '2015/11/01 00:00:06'
+    ref_time = '2022/02/28 12:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
@@ -123,7 +124,8 @@ def event_info(data_disk, data_disk_date):
 
     strt_time = dt.datetime.strptime(ref_time, "%Y/%m/%d %H:%M:%S")
     hour_ref = strt_time.hour
-    ref_time_range = [strt_time-dt.timedelta(seconds=6), strt_time+dt.timedelta(seconds=7)]
+    # ref_time_range = [strt_time-dt.timedelta(seconds=6), strt_time+dt.timedelta(seconds=7)]
+    ref_time_range = [strt_time-dt.timedelta(seconds=4), strt_time+dt.timedelta(seconds=10)]
 
     files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
     if len(files) == 0:
@@ -132,9 +134,13 @@ def event_info(data_disk, data_disk_date):
 
     ind = np.abs([t - strt_time for t in files_dt])
     map = Map(files[ind.argmin()])
-    bottom_left = SkyCoord(-25*u.arcsec, 50*u.arcsec, frame= map.coordinate_frame)
+    # bottom_left = SkyCoord(-25*u.arcsec, 50*u.arcsec, frame= map.coordinate_frame)
+    # bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
+    # top_right = SkyCoord(225*u.arcsec, 300*u.arcsec, frame= map.coordinate_frame)
+    # top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
+    bottom_left = SkyCoord(-600*u.arcsec, -500*u.arcsec, frame= map.coordinate_frame)
     bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
-    top_right = SkyCoord(225*u.arcsec, 300*u.arcsec, frame= map.coordinate_frame)
+    top_right = SkyCoord(100*u.arcsec, 500*u.arcsec, frame= map.coordinate_frame)
     top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
     
     pix_width = [(top_right_pix[0]-bottom_left_pix[0])/2, (top_right_pix[1]-bottom_left_pix[1])/2]
@@ -302,12 +308,15 @@ def checknumimages_10min(farray,timearray,n_img):
 if __name__ == '__main__':
     # set_start_method("spawn")
     ## Define constants and create the data directories
-    data_disk = '/disk/solarz3/nn2/LucieFL/data/'
-    os.makedirs(data_disk, exist_ok=True)
+    # data_disk = '/disk/solarz3/nn2/LucieFL/data/'
+    data_disk = '/disk/solarz3/nn2/SOOP_2022/data/'
+    # os.makedirs(data_disk, exist_ok=True)
     # data_disk_date = ['2018/10/28', '2018/10/29', '2018/10/30', '2018/10/31', '2018/11/01', '2018/11/02', '2018/11/03', '2018/11/04']
-    data_disk_date = ['2015/11/01','2015/11/02']
+    # data_disk_date = ['2015/11/01','2015/11/02']
+    data_disk_date = ['2022/02/28','2022/02/29']
     #select only 1 day
-    output_dir = '/disk/solarz3/nn2/LucieFL/results/'
+    # output_dir = '/disk/solarz3/nn2/LucieFL/results/'
+    output_dir = '/disk/solarz3/nn2/SOOP_2022/results/DEM/'
     output_dir_pic = output_dir+'DEM_images/'
     os.makedirs(output_dir, exist_ok='True')
     os.makedirs(output_dir_pic, exist_ok='True')
