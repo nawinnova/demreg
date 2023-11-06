@@ -250,8 +250,10 @@ def calculate_dem(map_array, err_array):
         trmatrix[:,i]=trin['tr'][i]    
     
     t_space=0.1
-    t_min=5.6
-    t_max=7.4
+    # t_min=5.6
+    # t_max=7.4
+    t_min = 5.5
+    t_max = 6.5
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
     mlogt=([np.mean([(np.log10(temps[i])),np.log10((temps[i+1]))]) for i in np.arange(0,len(temps)-1)])
@@ -425,20 +427,20 @@ if __name__ == '__main__':
                     print('asdf file save as ' + dem_arr_tit)
                 else:
                     print('Loading previously calculated DEM')
-                    arrs = asdf.open(dem_arr_tit)  
-                    dem = arrs['dem']
-                    edem = arrs['edem']
-                    mlogt = arrs['mlogt']
-                    elogt = arrs['elogt']
-                    chisq = arrs['chisq']
-                    logtemps = arrs['logtemps']
+                    # arrs = asdf.open(dem_arr_tit)  
+                    # dem = arrs['dem']
+                    # edem = arrs['edem']
+                    # mlogt = arrs['mlogt']
+                    # elogt = arrs['elogt']
+                    # chisq = arrs['chisq']
+                    # logtemps = arrs['logtemps']
                     
                 
-                submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
-                img_arr_tit = output_dir_pic+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-                plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
-                print('DEM plotted')
-                del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
+                # submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
+                # img_arr_tit = output_dir_pic+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
+                # plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+                # print('DEM plotted')
+                del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array
                 print('delete variables, moving to next time step')
             
                 
