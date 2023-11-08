@@ -311,7 +311,7 @@ def checknumimages_10min(farray,timearray,n_img):
 
  
 if __name__ == '__main__':
-    set_start_method("spawn")
+    # set_start_method("spawn")
     ## Define constants and create the data directories
     # data_disk = '/disk/solarz3/nn2/LucieFL/data/'
     data_disk = '/disk/solarz3/nn2/SOOP_2022/data/'
