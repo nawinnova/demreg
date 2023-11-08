@@ -138,9 +138,9 @@ def event_info(data_disk, data_disk_date):
     # bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
     # top_right = SkyCoord(225*u.arcsec, 300*u.arcsec, frame= map.coordinate_frame)
     # top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
-    bottom_left = SkyCoord(-600*u.arcsec, -500*u.arcsec, frame= map.coordinate_frame)
+    bottom_left = SkyCoord(-600*u.arcsec, -200*u.arcsec, frame= map.coordinate_frame)
     bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
-    top_right = SkyCoord(100*u.arcsec, 500*u.arcsec, frame= map.coordinate_frame)
+    top_right = SkyCoord(0*u.arcsec, 400*u.arcsec, frame= map.coordinate_frame)
     top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
     
     pix_width = [(top_right_pix[0]-bottom_left_pix[0])/2, (top_right_pix[1]-bottom_left_pix[1])/2]
@@ -311,7 +311,7 @@ def checknumimages_10min(farray,timearray,n_img):
 
  
 if __name__ == '__main__':
-    # set_start_method("spawn")
+    set_start_method("spawn")
     ## Define constants and create the data directories
     # data_disk = '/disk/solarz3/nn2/LucieFL/data/'
     data_disk = '/disk/solarz3/nn2/SOOP_2022/data/'
