@@ -253,7 +253,7 @@ def calculate_dem(map_array, err_array):
     # t_min=5.6
     # t_max=7.4
     t_min = 5.5
-    t_max = 6.9
+    t_max = 6.5
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
     mlogt=([np.mean([(np.log10(temps[i])),np.log10((temps[i+1]))]) for i in np.arange(0,len(temps)-1)])
