@@ -90,7 +90,7 @@ def event_info(data_disk):
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2018/10/01 03:00:04'
+    ref_time = '2018/11/01 03:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
