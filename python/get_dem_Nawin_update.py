@@ -85,12 +85,12 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
 ## Function with event information
 def event_info(data_disk):
-    start_time = '2018/10/31 00:00:00'
-    end_time = '2018/10/31 01:00:00'
+    start_time = '2018/11/01 03:00:00'
+    end_time = '2018/11/01 04:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2018/10/31 00:00:09'
+    ref_time = '2018/10/01 03:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
@@ -108,9 +108,9 @@ def event_info(data_disk):
 
     ind = np.abs([t - strt_time for t in files_dt])
     map = Map(files[ind.argmin()])
-    bottom_left = SkyCoord(-650 * u.arcsec, -600 * u.arcsec, frame= map.coordinate_frame)
+    bottom_left = SkyCoord(-400 * u.arcsec, -600 * u.arcsec, frame= map.coordinate_frame)
     bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
-    top_right = SkyCoord(100 * u.arcsec, 600 * u.arcsec, frame= map.coordinate_frame)
+    top_right = SkyCoord(300 * u.arcsec, 600 * u.arcsec, frame= map.coordinate_frame)
     top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
     
     pix_width = [(top_right_pix[0]-bottom_left_pix[0])/2, (top_right_pix[1]-bottom_left_pix[1])/2]
@@ -358,9 +358,9 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
 
  
 if __name__ == '__main__':
-    set_start_method("spawn")
+    # set_start_method("spawn")
     ## Define constants and create the data directories
-    data_disk = '/disk/solar/nn2/data/2018/10/31/00/AIA'
+    data_disk = '/disk/solarz3/nn2/data_CH2018/2018/11/01/03/AIA'
 
     # os.makedirs(data_disk, exist_ok='True')
 
@@ -369,7 +369,7 @@ if __name__ == '__main__':
 
     ## Define and create the output directories
 
-    output_dir = '/disk/solar/nn2/results/DEM_update/'
+    output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
 
     os.makedirs(output_dir, exist_ok='True')
     passband = [94, 131, 171, 193, 211, 335]
