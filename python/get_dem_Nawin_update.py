@@ -358,7 +358,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
 
  
 if __name__ == '__main__':
-    # set_start_method("spawn")
+    set_start_method("forkserver")
     ## Define constants and create the data directories
     data_disk = '/disk/solarz3/nn2/data_CH2018/2018/11/01/03/AIA'
 
