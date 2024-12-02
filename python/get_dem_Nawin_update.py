@@ -414,12 +414,13 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
 if __name__ == '__main__':
     set_start_method("forkserver")
     ## Define constants and create the data directories
-    data_disk = '/disk/solarz3/nn2/data_CH2018/2018/11/01/04/AIA'
+    data_disk = '/disk/solarz3/nn2/data_CH2018/'
 
     # os.makedirs(data_disk, exist_ok='True')
 
     ## Get the event information
     start_time,end_time,ref_time,cadence,crd_cent,crd_width,ref_file_date,img_file_date,img_time_range = event_info(data_disk)
+    print(img_file_date, img_time_range)
 
     ## Define and create the output directories
 
