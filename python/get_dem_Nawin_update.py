@@ -144,7 +144,7 @@ def event_info(data_disk):
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2018/11/01 04:00:04'
+    ref_time = '2018/11/01 03:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
@@ -152,7 +152,7 @@ def event_info(data_disk):
     img_file_date = dt.datetime.strftime(dt.datetime.strptime(ref_time,'%Y/%m/%d %H:%M:%S'), '%Y/%m/%d')
 
     strt_time = dt.datetime.strptime(ref_time, "%Y/%m/%d %H:%M:%S")
-    ref_time_range = [strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10)]
+    ref_time_range = [strt_time-dt.timedelta(seconds=4), strt_time+dt.timedelta(seconds=8)]
 
     files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
     # if not files:
