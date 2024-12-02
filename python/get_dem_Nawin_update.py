@@ -443,12 +443,12 @@ if __name__ == '__main__':
 
     ## Get list of files from each passband to identify the smallest number of files
     print('Getting list of files')
-    f_0094, time_0094 = get_filelist(data_disk, 94, img_file_date, img_time_range)
-    f_0131, time_0131 = get_filelist(data_disk, 131, img_file_date, img_time_range)
-    f_0171, time_0171 = get_filelist(data_disk, 171, img_file_date, img_time_range)
-    f_0193, time_0193 = get_filelist(data_disk, 193, img_file_date, img_time_range)
-    f_0211, time_0211 = get_filelist(data_disk, 211, img_file_date, img_time_range)
-    f_0335, time_0335 = get_filelist(data_disk, 335, img_file_date, img_time_range)
+    f_0094, time_0094 = get_filelist_AIA(data_disk, 94, img_file_date, img_time_range)
+    f_0131, time_0131 = get_filelist_AIA(data_disk, 131, img_file_date, img_time_range)
+    f_0171, time_0171 = get_filelist_AIA(data_disk, 171, img_file_date, img_time_range)
+    f_0193, time_0193 = get_filelist_AIA(data_disk, 193, img_file_date, img_time_range)
+    f_0211, time_0211 = get_filelist_AIA(data_disk, 211, img_file_date, img_time_range)
+    f_0335, time_0335 = get_filelist_AIA(data_disk, 335, img_file_date, img_time_range)
 
     flength = [len(f_0094), len(f_0131), len(f_0171), len(f_0193), len(f_0211), len(f_0335)]
     flist = [f_0094, f_0131, f_0171, f_0193, f_0211, f_0335]
