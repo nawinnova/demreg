@@ -32,7 +32,9 @@ import asdf
 from bisect import bisect_left, bisect_right
 from multiprocessing import set_start_method
 
-
+# Function to flatten list
+def flatten(l):
+    return [item for sublist in l for item in sublist]
 
 def closest(list, value):
     """
@@ -83,14 +85,66 @@ def get_filelist(data_disk, passband, img_file_date, img_time_range):
 
     return files_out, file_time_out
 
-## Function with event information
+## Function to get the list of AIA filenames and time, Default is for img_time_range.
+def get_filelist_AIA(data_disk, passband, img_file_date, img_time_range):
+    print('Getting list of files for AIA'+str(passband)+' passband')
+    hstart = img_time_range[0].hour
+    hend = img_time_range[1].hour
+    if hstart == hend:
+        h = np.arange(hstart,hend+1,1)
+    else:
+        h = np.arange(hstart,hend,1)
+    
+    files_list = []
+    files_dt_list = []
+    for i in h:
+        # print('Looking for hour '+str(i))
+        files = glob.glob(data_disk+img_file_date+'/'+str(i).zfill(2)+'/AIA'+str(passband)+'/*.fits', recursive=True)
+        files.sort()
+        files_dt = []
+        for file_i in files:
+            try:
+                hdr = fits.getheader(file_i, 1, ignore_missing_simple=True)
+                try:
+                    files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%fZ'))
+                except:
+                    files_dt.append(dt.datetime.strptime(hdr.get('DATE-OBS'),'%Y-%m-%dT%H:%M:%S.%f'))    
+            except OSError as e:
+                # Download new file
+                print('{}'.format(e) + ' for' + file_i +': Downloading new file')
+                files_dtload = dt.datetime.strptime(file_i.split(f'{passband}a_')[1].split('z')[0], '%Y_%m_%dt%H_%M_%S_%f')
+                file_load = get_data_AIA(files_dtload-dt.timedelta(seconds=10), files_dtload+dt.timedelta(seconds=10), 10*u.second, passband, data_disk+img_file_date, i)
+                print("Download complete")
+                files_dt.append(files_dtload)
+        files_list.append(files)
+        files_dt_list.append(files_dt)
+    
+    files_dt_list = flatten(files_dt_list)
+    files_list = flatten(files_list)
+
+    left = bisect_left(files_dt_list, img_time_range[0])
+    right = bisect_right(files_dt_list, img_time_range[1])
+    files_out = files_list[left:right]
+    file_time_out = files_dt_list[left:right]
+    
+    return files_out, file_time_out
+
+## Function to download data (default instrument is AIA)
+def get_data_AIA(start_time, end_time, cadence, pband, data_disk, hour, overwrite = True):
+    ## Identify and download the data
+    attrs_time = a.Time(start_time, end_time)
+    wvlnth = a.Wavelength(int(pband)*u.Angstrom, int(pband)*u.Angstrom)
+    result = Fido.search(attrs_time, a.Instrument('AIA'), wvlnth, a.Sample(cadence))
+    files = Fido.fetch(result, path = data_disk+'/'+str(hour).zfill(2)+'/AIA'+str(pband)+'/', overwrite=overwrite, progress=True)
+
+## Function with event information (change start_time, end_time, bottom_left, top_right)
 def event_info(data_disk):
     start_time = '2018/11/01 04:00:00'
     end_time = '2018/11/01 05:00:00'
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2018/11/01 03:00:04'
+    ref_time = '2018/11/01 04:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
@@ -100,9 +154,9 @@ def event_info(data_disk):
     strt_time = dt.datetime.strptime(ref_time, "%Y/%m/%d %H:%M:%S")
     ref_time_range = [strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10)]
 
-    files, files_dt = get_filelist(data_disk, 193, ref_file_date, ref_time_range)
-    if not files:
-        get_data(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), ref_file_date, 10*u.second, 193, data_disk)
+    files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
+    # if not files:
+    #     get_data(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), ref_file_date, 10*u.second, 193, data_disk)
 
     # files, files_dt = get_filelist(data_disk, 193, ref_file_date, ref_time_range)
 
