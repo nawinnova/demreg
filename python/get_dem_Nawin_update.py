@@ -217,9 +217,11 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
     for m in range(0, len(maps)):
         psf = aiapy.psf.psf(maps[m].wavelength)
         aia_map_deconvolved = aiapy.psf.deconvolve(maps[m], psf=psf)
-        aia_map_updated_pointing = update_pointing(aia_map_deconvolved)
-        aia_map_registered = register(aia_map_updated_pointing)
-        aia_map_corrected = correct_degradation(aia_map_registered)
+        # no update pointing since JSOC down
+        # aia_map_updated_pointing = update_pointing(aia_map_deconvolved)
+        # aia_map_registered = register(aia_map_updated_pointing)
+        aia_map_registered = register(aia_map_deconvolved)
+        aia_map_corrected = correct_degradation(aia_map_registered, correction_table='aia_V10_20201119_190000_response_table.txt')
         aia_map_norm = normalize_exposure(aia_map_corrected)
         #Replace maps with prepped maps
         maps[m] = aia_map_norm
