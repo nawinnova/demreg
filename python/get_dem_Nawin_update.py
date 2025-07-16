@@ -19,6 +19,8 @@ from astropy.coordinates import SkyCoord
 import astropy.time as time
 from astropy.io import fits as fits
 from astropy.wcs.utils import skycoord_to_pixel, pixel_to_skycoord
+from astropy.nddata import CCDData
+from PSF_tools.deconvolve_image import deconvolve_bid
 from sunpy.map import Map
 from sunpy.net import Fido, attrs as a
 from sunpy.coordinates import propagate_with_solar_surface
@@ -211,12 +213,33 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
 
     farray = [f_0094[ind_0094], f_0131[ind_0131], f_0171[ind_0171], f_0193[ind_0193], f_0211[ind_0211], f_0335[ind_0335]]
     maps = Map(farray)
+    psf_array = []
+    for m in range(0, len(maps)):
+        if maps[m].wavelength.value == 94:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_094.fits'))
+        elif maps[m].wavelength.value == 131:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_131.fits'))
+        elif maps[m].wavelength.value == 171:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_171.fits'))
+        elif maps[m].wavelength.value == 193:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_193.fits'))
+        elif maps[m].wavelength.value == 211:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_211.fits'))
+        elif maps[m].wavelength.value == 335:
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_335.fits')) 
+
 
     print('Prepping images & deconvolving with PSF')
     
     for m in range(0, len(maps)):
-        psf = aiapy.psf.psf(maps[m].wavelength)
-        aia_map_deconvolved = aiapy.psf.deconvolve(maps[m], psf=psf)
+        ## Old PSF
+        # psf = aiapy.psf.psf(maps[m].wavelength)
+        # aia_map_deconvolved = aiapy.psf.deconvolve(maps[m], psf=psf)
+        ## New PSF (Hofmeister et al. 2025)
+        psf = psf_array[m]
+        aia_data = maps[m].data.astype(float)
+        aia_map_deconvolved_data = deconvolve_bid(aia_data, psf, large_psf = True, use_gpu = True)
+        aia_map_deconvolved = Map(aia_map_deconvolved_data, maps[m].meta)
         # no update pointing since JSOC down
         # aia_map_updated_pointing = update_pointing(aia_map_deconvolved)
         # aia_map_registered = register(aia_map_updated_pointing)
@@ -425,8 +448,9 @@ if __name__ == '__main__':
     print(img_file_date, img_time_range)
 
     ## Define and create the output directories
-
-    output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
+    # output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
+    ## New output_dir
+    output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf/'
 
     os.makedirs(output_dir, exist_ok='True')
     passband = [94, 131, 171, 193, 211, 335]
