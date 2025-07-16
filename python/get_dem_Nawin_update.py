@@ -20,7 +20,7 @@ import astropy.time as time
 from astropy.io import fits as fits
 from astropy.wcs.utils import skycoord_to_pixel, pixel_to_skycoord
 from astropy.nddata import CCDData
-from PSF_tools.deconvolve_image import deconvolve_bid
+from deconvolve_image import deconvolve_bid
 from sunpy.map import Map
 from sunpy.net import Fido, attrs as a
 from sunpy.coordinates import propagate_with_solar_surface
