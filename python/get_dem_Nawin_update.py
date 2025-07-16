@@ -216,7 +216,7 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
     psf_array = []
     for m in range(0, len(maps)):
         if maps[m].wavelength.value == 94:
-            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_094.fits'))
+            psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_94.fits'))
         elif maps[m].wavelength.value == 131:
             psf_array.append(CCDData.read('/disk/solar/nn2/demreg/PSF_tools/PSF_Hofmeister2025/psf_aia_131.fits'))
         elif maps[m].wavelength.value == 171:
