@@ -256,7 +256,7 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
                   frame = maps[3].coordinate_frame)
     bl_x, bl_y = maps[3].world_to_pixel(bl)
     tr = SkyCoord((diffrot_cent.Tx.arcsecond+crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond+crd_width[1])*u.arcsec,
-                  frame = maps[0].coordinate_frame)
+                  frame = maps[3].coordinate_frame)
     tr_x, tr_y = maps[3].world_to_pixel(tr)
     submap_0 = maps[3].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
     nx,ny = submap_0.data.shape
@@ -300,8 +300,8 @@ def calculate_dem(map_array, err_array):
     
     t_space=0.1
     #logT = 5.3-6.5 (Heinemann2021) #lower lim 5.5
-    t_min=5.5
-    t_max=6.5
+    t_min=5.3
+    t_max=6.7
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
     mlogt=([np.mean([(np.log10(temps[i])),np.log10((temps[i+1]))]) for i in np.arange(0,len(temps)-1)])
@@ -450,7 +450,7 @@ if __name__ == '__main__':
     ## Define and create the output directories
     # output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
     ## New output_dir
-    output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf/'
+    output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf_newlogT/'
 
     os.makedirs(output_dir, exist_ok='True')
     passband = [94, 131, 171, 193, 211, 335]
@@ -559,4 +559,6 @@ if __name__ == '__main__':
         print('DEM plotted')
         del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
         print('delete variables, moving to next time step')
+        print('Exiting after first DEM')
+        break
     print('Job Done!')
