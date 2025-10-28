@@ -241,9 +241,9 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
         aia_map_deconvolved_data = deconvolve_bid(aia_data, psf, large_psf = True, use_gpu = True)
         aia_map_deconvolved = Map(aia_map_deconvolved_data, maps[m].meta)
         # no update pointing since JSOC down
-        # aia_map_updated_pointing = update_pointing(aia_map_deconvolved)
-        # aia_map_registered = register(aia_map_updated_pointing)
-        aia_map_registered = register(aia_map_deconvolved)
+        aia_map_updated_pointing = update_pointing(aia_map_deconvolved)
+        aia_map_registered = register(aia_map_updated_pointing)
+        # aia_map_registered = register(aia_map_deconvolved)
         aia_map_corrected = correct_degradation(aia_map_registered, correction_table='aia_V10_20201119_190000_response_table.txt')
         aia_map_norm = normalize_exposure(aia_map_corrected)
         #Replace maps with prepped maps
@@ -298,7 +298,7 @@ def calculate_dem(map_array, err_array):
     for i in range(0,nf):
         trmatrix[:,i]=trin['tr'][i]    
     
-    t_space=0.1
+    t_space=0.05
     #logT = 5.3-6.5 (Heinemann2021) #lower lim 5.5
     t_min=5.3
     t_max=6.7
@@ -314,7 +314,7 @@ def calculate_dem(map_array, err_array):
 def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     nt=len(dem[0,0,:])
     # nt_new=int(nt/2)
-    nc, nr = 3, 3
+    nc, nr = 4, 3
     plt.rcParams.update({'font.size': 12,'font.family':"sans-serif",\
                          'font.sans-serif':"Arial",'mathtext.default':"regular"})
     fig, axes = plt.subplots(nrows=nr, ncols=nc, figsize=(10,12), sharex=True, sharey=True, subplot_kw=dict(projection=submap), 
@@ -325,9 +325,9 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
     cmap = plt.cm.get_cmap('cubehelix_r')
 
     for i, axi in enumerate(axes.flat):
-        new_dem=(dem[:,:,i]+dem[:,:,i+1])/2.
+        new_dem=(dem[:,:,2*i]+dem[:,:,2*i+1])
         plotmap = Map(new_dem, submap.meta)
-        plotmap.plot(axes=axi,norm=colors.LogNorm(vmin=1e19,vmax=1e22),cmap=cmap)
+        plotmap.plot(axes=axi,norm=colors.LogNorm(vmin=1e19,vmax=1e21),cmap=cmap)
     
         y = axi.coords[1]
         y.set_axislabel(' ')
@@ -338,7 +338,7 @@ def plot_dem_images(submap,dem,logtemps,img_arr_tit):
         if i < 6:
             x.set_ticklabel_visible(False)
 
-        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[i],logtemps[i+1]))
+        axi.set_title('Log(T) = {0:.2f} - {1:.2f}'.format(logtemps[2*i],logtemps[2*i+1]))
 
     plt.tight_layout(pad=0.1, rect=[0, 0, 1, 0.98])
     plt.colorbar(ax=axes.ravel().tolist(),label='$\mathrm{DEM\;[cm^{-5}\;K^{-1}]}$',fraction=0.03, pad=0.02)
@@ -450,7 +450,7 @@ if __name__ == '__main__':
     ## Define and create the output directories
     # output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
     ## New output_dir
-    output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf_newlogT/'
+    output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf_rebin/'
 
     os.makedirs(output_dir, exist_ok='True')
     passband = [94, 131, 171, 193, 211, 335]
@@ -538,7 +538,11 @@ if __name__ == '__main__':
         # Get a submap to have the scales and image properties.
         submap = get_submap(time_array,index,img,f_0193,crd_cent,crd_width)
         img_arr_tit = output_dir+'DEM_image/DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
-        plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+        try:
+            plot = plot_dem_images(submap,dem,logtemps,img_arr_tit)
+            print('DEM plotted')
+        except:
+            continue
         # img_arr_tit = output_dir+'DEM_images_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
         # # plot_dem_images(submap,dem,logtemps,img_arr_tit,CHB, CHB_in, CHB_out)
         # plot_dem_images(submap,dem,logtemps,img_arr_tit)
@@ -556,9 +560,8 @@ if __name__ == '__main__':
         # img_dens_tit = output_dir+'Dens_map_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.png'
         # # Densmap = plot_dens_images(submap, EM_total, img_dens_tit,CHB, CHB_in, CHB_out)
         # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
-        print('DEM plotted')
         del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
         print('delete variables, moving to next time step')
-        print('Exiting after first DEM')
-        break
+        # print('Exiting after first DEM')
+        # break
     print('Job Done!')
