@@ -453,6 +453,7 @@ if __name__ == '__main__':
     output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf_rebin/'
 
     os.makedirs(output_dir, exist_ok='True')
+    os.makedirs(output_dir+'DEM_image/', exist_ok=True)
     passband = [94, 131, 171, 193, 211, 335]
 
     ## Download the data
