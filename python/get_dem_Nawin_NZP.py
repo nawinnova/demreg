@@ -146,7 +146,7 @@ def event_info(data_disk):
     cadence = 10*u.second #seconds
     img_time_range = [dt.datetime.strptime(start_time, "%Y/%m/%d %H:%M:%S"), dt.datetime.strptime(end_time, "%Y/%m/%d %H:%M:%S")]
 
-    ref_time = '2012/06/03 00:00:00'
+    ref_time = '2012/06/03 00:00:04'
     # bottom_left = [1637, 379]*u.pixel  
     # top_right = [2889, 1630]*u.pixel  
 
@@ -157,18 +157,18 @@ def event_info(data_disk):
     ref_time_range = [strt_time-dt.timedelta(seconds=4), strt_time+dt.timedelta(seconds=8)]
 
     files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
-    # if not files:
-    #     get_data(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), ref_file_date, 10*u.second, 193, data_disk)
-
-    # files, files_dt = get_filelist(data_disk, 193, ref_file_date, ref_time_range)
+    if not files:
+        # get_data(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), ref_file_date, 10*u.second, 193, data_disk)
+        get_data_AIA(strt_time-dt.timedelta(seconds=10), strt_time+dt.timedelta(seconds=10), 10*u.second,193, data_disk+img_file_date, img_time_range[0].hour)
+        files, files_dt = get_filelist_AIA(data_disk, 193, ref_file_date, ref_time_range)
 
     ind = np.abs([t - strt_time for t in files_dt])
     map = Map(files[ind.argmin()])
-    # bottom_left = SkyCoord(-400 * u.arcsec, -600 * u.arcsec, frame= map.coordinate_frame)
-    bottom_left = map.bottom_left_coord
+    bottom_left = SkyCoord(-1200 * u.arcsec, -1200 * u.arcsec, frame= map.coordinate_frame)
+    # bottom_left = map.bottom_left_coord
     bottom_left_pix = skycoord_to_pixel(bottom_left, map.wcs, origin = 0)*u.pixel
-    # top_right = SkyCoord(300 * u.arcsec, 600 * u.arcsec, frame= map.coordinate_frame)
-    top_right = map.top_right_coord
+    top_right = SkyCoord(1200 * u.arcsec, 1200 * u.arcsec, frame= map.coordinate_frame)
+    # top_right = map.top_right_coord
     top_right_pix = skycoord_to_pixel(top_right, map.wcs, origin = 0)*u.pixel
     
     pix_width = [(top_right_pix[0]-bottom_left_pix[0])/2, (top_right_pix[1]-bottom_left_pix[1])/2]
@@ -252,14 +252,17 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
         maps[m] = aia_map_norm
 
     #Diff rotate and get submap
-    with propagate_with_solar_surface():
-        diffrot_cent = crd_cent.transform_to(maps[3].coordinate_frame)
+    # with propagate_with_solar_surface():
+    #     diffrot_cent = crd_cent.transform_to(maps[3].coordinate_frame)
+    diffrot_cent = crd_cent.transform_to(maps[3].coordinate_frame)
     bl = SkyCoord((diffrot_cent.Tx.arcsecond-crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond-crd_width[1])*u.arcsec,
                   frame = maps[3].coordinate_frame)
     bl_x, bl_y = maps[3].world_to_pixel(bl)
     tr = SkyCoord((diffrot_cent.Tx.arcsecond+crd_width[0])*u.arcsec, (diffrot_cent.Ty.arcsecond+crd_width[1])*u.arcsec,
-                  frame = maps[0].coordinate_frame)
+                  frame = maps[3].coordinate_frame)
     tr_x, tr_y = maps[3].world_to_pixel(tr)
+    if np.isnan(tr_x.value):
+        tr_x, tr_y = 4095*u.pix, 4095*u.pix
     submap_0 = maps[3].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
     nx,ny = submap_0.data.shape
     nf=len(maps)
@@ -457,7 +460,7 @@ if __name__ == '__main__':
     os.makedirs(output_dir, exist_ok='True')
     passband = [94, 131, 171, 193, 211, 335]
 
-    ## Download the data
+    # Download the data
     # for pband in passband:
     #     files, file_time = get_filelist(data_disk, pband, img_file_date, img_time_range)
     #     n_img = ((img_time_range[1]-img_time_range[0]).total_seconds()/(cadence/u.second))
