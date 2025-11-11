@@ -269,7 +269,7 @@ def prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,c
         submap = maps[n].submap([int(bl_x.value), int(bl_y.value)]*u.pixel, top_right=[int(tr_x.value), int(tr_y.value)]*u.pixel)
         map_arr.append(submap)
         num_pix=submap.data.size
-        error_array[:,:,n] = estimate_error(submap.data*(u.ct/u.pix),submap.wavelength,num_pix)
+        error_array[:,:,n] = estimate_error(submap.data*(u.ct/u.pix),submap.wavelength,num_pix, include_chianti=True)
     #Correct values of DEM estimated error - Using eclipse correction by Heinemann et al. (2021)
         error_array[:,:,n] = error_array[:,:,n]+eclipse_correction[n]
 
@@ -300,8 +300,8 @@ def calculate_dem(map_array, err_array):
     
     t_space=0.05
     #logT = 5.3-6.5 (Heinemann2021) #lower lim 5.5
-    t_min=5.3
-    t_max=6.7
+    t_min=5.5
+    t_max=6.5
     logtemps=np.linspace(t_min,t_max,num=int((t_max-t_min)/t_space)+1)
     temps=10**logtemps
     mlogt=([np.mean([(np.log10(temps[i])),np.log10((temps[i+1]))]) for i in np.arange(0,len(temps)-1)])
@@ -451,9 +451,11 @@ if __name__ == '__main__':
     # output_dir = '/disk/solarz3/nn2/results/DEM_highres/'
     ## New output_dir
     output_dir = '/disk/solarz3/nn2/results/DEM_highres_newpsf_rebin/'
+    prepmap_dir = '/disk/solarz3/nn2/results/data_CH2018/psf_corrected/'
 
-    os.makedirs(output_dir, exist_ok='True')
+    os.makedirs(output_dir, exist_ok=True)
     os.makedirs(output_dir+'DEM_image/', exist_ok=True)
+    os.makedirs(prepmap_dir, exist_ok=True)
     passband = [94, 131, 171, 193, 211, 335]
 
     ## Download the data
@@ -490,26 +492,25 @@ if __name__ == '__main__':
         print('Processing image, time = '+dt.datetime.strftime(time_array[index][img], "%Y-%m-%dT%H:%M:%S"))
 
     # Get and process images.
-        err_arr_tit = output_dir+'error_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
-        map_arr_tit = output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'_{index:03}.fits'
-        # files = os.path.exists(err_arr_tit)
-    #    if files == False:
-        try:
+        err_arr_tit = prepmap_dir+'error_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
+        map_arr_tit = prepmap_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'_{index:03}.fits'
+        files = os.path.exists(err_arr_tit)
+        if files == False:
             map_array, err_array = prep_images(time_array,index,img,f_0094,f_0131,f_0171,f_0193,f_0211,f_0335,crd_cent,crd_width)
-        except OSError as e:
-            print('{}'.format(e))
-            continue
-    #       map_array.save(map_arr_tit,overwrite='True')
-        #   tree = {'err_array':err_array}
-        #   with asdf.AsdfFile(tree) as asdf_file:
-        #     asdf_file.write_to(err_arr_tit, all_array_compression='zlib')
-        
-    #    else:
-    #        print('Loading previously prepped images')
-    #        arrs = asdf.open(err_arr_tit)
-    #        err_array = arrs['err_array']
-    #        ffin=sorted(glob.glob(output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'*.fits'))
-    #        map_array = Map(ffin)
+            map_array.save(map_arr_tit,overwrite='True')
+            tree = {'err_array':err_array}
+            with asdf.AsdfFile(tree) as asdf_file:
+                asdf_file.write_to(err_arr_tit, all_array_compression='zlib')
+            # skip to next time step -  don't do DEM
+            # continue
+
+        else:
+            print('Loading previously prepped images')
+            arrs = asdf.open(err_arr_tit)
+            err_array = arrs['err_array']
+            ffin=sorted(glob.glob(output_dir+'prepped_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'*.fits'))
+            map_array = Map(ffin)
+
         # Calculate DEMs
         dem_arr_tit = output_dir+'dem_data_'+dt.datetime.strftime(time_array[index][img], "%Y%m%d_%H%M%S")+'.asdf'
         files = os.path.exists(dem_arr_tit)
@@ -517,8 +518,8 @@ if __name__ == '__main__':
             print('Calculating DEM')
             try:
                 dem,edem,elogt,chisq,dn_reg,mlogt,logtemps = calculate_dem(map_array,err_array)
-            except OSError as e:
-                print('{}'.format(e))
+            except:
+                print('DEM fit not working for this time step')
                 continue
             print('DEM calculation completed, Saving asdf file')
             tree = {'dem':dem, 'edem':edem, 'mlogt':mlogt, 'elogt':elogt, 'chisq':chisq, 'logtemps':logtemps}
@@ -563,6 +564,6 @@ if __name__ == '__main__':
         # Densmap = plot_dens_images(submap, EM_total, img_dens_tit)
         del dem, edem, mlogt, elogt, chisq, logtemps, map_array, err_array, submap
         print('delete variables, moving to next time step')
-        # print('Exiting after first DEM')
-        # break
+        print('Exiting after first DEM')
+        break
     print('Job Done!')
